@@ -1,7 +1,14 @@
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
-import { learningPaths } from "@/_mock_/data";
-import type { LearningPath, Level, Course } from "@/_mock_/type";
+import { useEffect, useState } from "react";
+import { api } from "@/server/api";
+import { root } from "@/server/root";
+import type {
+  LearningPathWithRelations,
+  LevelWithRelations,
+  CourseWithRelations,
+  CourseSelect,
+} from "@/server/schema.types";
 
 // State Types
 type DataState<T> = {
@@ -10,24 +17,30 @@ type DataState<T> = {
   error: string | null;
 };
 
-type CourseWithContext = Course & {
-  level?: Level;
-  learningPath?: LearningPath;
+type CourseWithContext = CourseWithRelations & {
+  courseNumber: number;
+  learningPath?: LearningPathWithRelations;
 };
 
 type LearningPlatformStore = {
   // Learning Paths
-  learningPaths: DataState<LearningPath>;
-  fetchLearningPaths: (options?: {
-    status?: boolean;
-    includeDetails?: boolean;
-  }) => Promise<LearningPath[]>;
+  learningPaths: DataState<LearningPathWithRelations>;
+  setLearningPaths: (paths: LearningPathWithRelations[]) => void;
+  setLoading: (isLoading: boolean) => void;
+  setError: (error: string | null) => void;
 
   // Utility Methods
-  getPathById: (id: string) => LearningPath | undefined;
-  getLevelByNumber: (pathId: string, levelNumber: number) => Level | undefined;
-  getCourseById: (
+  getPathById: (id: string) =>
+    | (LearningPathWithRelations & {
+        currentLevelNumber: number;
+        nextCourseId: string | undefined;
+      })
+    | undefined;
+  getLevelByNumber: (
     pathId: string,
+    levelNumber: number
+  ) => LevelWithRelations | undefined;
+  getCourseById: (
     courseId: string,
     options?: {
       with?: {
@@ -45,119 +58,200 @@ export const usePathStore = create<LearningPlatformStore>()(
     // Learning Paths
     learningPaths: { data: [], isLoading: false, error: null },
 
-    fetchLearningPaths: async (options = {}) => {
+    setLearningPaths: (paths) =>
       set((state) => ({
-        learningPaths: {
-          ...state.learningPaths,
-          isLoading: true,
-          error: null,
-        },
-      }));
+        learningPaths: { ...state.learningPaths, data: paths },
+      })),
 
-      try {
-        // Simulating API delay
-        await new Promise((resolve) => setTimeout(resolve, 500));
+    setLoading: (isLoading) =>
+      set((state) => ({
+        learningPaths: { ...state.learningPaths, isLoading },
+      })),
 
-        // Filter learning paths based on enrollment status
-        let filteredPaths =
-          options.status !== undefined
-            ? learningPaths.filter((path) => path.isEnrolled === options.status)
-            : learningPaths;
+    setError: (error) =>
+      set((state) => ({
+        learningPaths: { ...state.learningPaths, error },
+      })),
 
-        set((state) => ({
-          learningPaths: {
-            data: filteredPaths,
-            isLoading: false,
-            error: null,
-          },
-        }));
-
-        return filteredPaths;
-      } catch (error) {
-        set((state) => ({
-          learningPaths: {
-            ...state.learningPaths,
-            isLoading: false,
-            error: error instanceof Error ? error.message : "An error occurred",
-          },
-        }));
-        return [];
-      }
-    },
-
-    // Utility Methods
     getPathById: (id: string) => {
-      return learningPaths.find((path) => path.id === id);
+      const path = get().learningPaths.data.find((path) => path.id === id);
+      if (!path || !path.levels) return undefined;
+
+      // Find the current level and next course
+      let currentLevelNumber = 1;
+      let nextCourseId: string | undefined;
+
+      // Iterate through levels and courses to find current progress
+      for (const level of path.levels) {
+        if (!level.courses?.length) continue;
+
+        const incompleteCourse = level.courses.find(
+          (course) => course.percentComplete < 100
+        );
+
+        if (incompleteCourse) {
+          currentLevelNumber = level.number;
+          if (!nextCourseId) {
+            nextCourseId = incompleteCourse.id;
+          }
+          break;
+        }
+      }
+
+      if (!nextCourseId) {
+        const nextLevel = path.levels.find(
+          (level) => level.number === currentLevelNumber + 1
+        );
+        if (nextLevel?.courses?.[0]) {
+          nextCourseId = nextLevel.courses[0].id;
+        }
+      }
+
+      return {
+        ...path,
+        currentLevelNumber,
+        nextCourseId,
+      };
     },
 
     getLevelByNumber: (pathId: string, levelNumber: number) => {
       const path = get().getPathById(pathId);
-      return path?.levels.find((level) => level.number === levelNumber);
+      if (!path?.levels) return undefined;
+      return path.levels.find((level) => level.number === levelNumber);
     },
 
-    getCourseById: (
-      pathId: string,
-      courseId: string,
-      options?: {
-        with?: {
-          levels?: boolean;
-          path?: boolean;
-        };
-      }
-    ) => {
-      const path = get().getPathById(pathId);
-      if (!path) return undefined;
+    getCourseById: (courseId: string, options) => {
+      const path = get().learningPaths.data.find((path) =>
+        path.levels?.some((level) =>
+          level.courses?.some((course) => course.id === courseId)
+        )
+      );
 
-      const course = path.levels
-        .flatMap((level) => level.courses)
-        .find((course) => course.id === courseId);
+      if (!path?.levels) return undefined;
 
-      if (!course) return undefined;
+      const level = path.levels.find((level) =>
+        level.courses?.some((course) => course.id === courseId)
+      );
 
-      // If no options are provided, return the course as-is
+      if (!level?.courses) return undefined;
+
+      const courseIndex = level.courses.findIndex(
+        (course) => course.id === courseId
+      );
+
+      if (courseIndex === -1) return undefined;
+
+      const course = level.courses[courseIndex];
+      const baseResult: CourseWithContext = {
+        ...course,
+        courseNumber: courseIndex + 1,
+        level: undefined,
+        swipeCards: undefined,
+        lessons: undefined,
+      };
+
       if (!options?.with) {
-        return course;
+        return baseResult;
       }
 
-      // Create a result object with the course
-      let result: Partial<
-        Course & { level?: Level; learningPath?: LearningPath }
-      > = { ...course };
-
-      // Include level information if requested
       if (options.with.levels) {
-        const containingLevel = path.levels.find((level) =>
-          level.courses.some((c) => c.id === courseId)
-        );
-        result.level = containingLevel;
+        baseResult.level = level;
       }
 
-      // Include path information if requested
       if (options.with.path) {
-        result.learningPath = path;
+        baseResult.learningPath = path;
       }
 
-      return result;
+      return baseResult;
     },
 
     calculatePathProgress: (pathId: string) => {
       const path = get().getPathById(pathId);
-      if (!path) return 0;
+      if (!path?.levels) return 0;
 
-      const allCourses = path.levels.flatMap((level) => level.courses);
+      const allCourses = path.levels.flatMap((level) => level.courses ?? []);
+      if (!allCourses.length) return 0;
+
       const completedCourses = allCourses.filter(
-        (course) => course.percentComplete > 0
+        (course) => course?.percentComplete > 0
       );
 
-      return allCourses.length > 0
-        ? (completedCourses.length / allCourses.length) * 100
-        : 0;
+      return (completedCourses.length / allCourses.length) * 100;
     },
   }))
 );
 
-// Hooks for easy access in components
+// Custom hooks for data fetching with React Query
 export const useLearningPaths = () => {
-  const { learningPaths, fetchLearningPaths } = usePathStore();
-  return { learningPaths, fetchLearningPaths };
+  const store = usePathStore();
+  const [isLoading, setIsLoading] = useState(false);
+  const fetchData = async () => {
+    try {
+      setIsLoading(true);
+      const query = await root.learning.getAllPaths();
+
+      if (query) {
+        store.setLearningPaths(query);
+      }
+    } catch (error) {
+      console.error(
+        "OH SHITT! Something went wrong while fetching learning paths",
+        error
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setIsLoading(true);
+        const query = await root.learning.getAllPaths();
+
+        if (query) {
+          store.setLearningPaths(query);
+        }
+      } catch (error) {
+        console.error(
+          "OH SHITT! Something went wrong while fetching learning paths",
+          error
+        );
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    void fetchData();
+  }, []);
+
+  return {
+    learningPaths: store.learningPaths,
+    isLoading,
+    refetch: fetchData,
+  };
+};
+
+export const useLearningPath = (pathId: string) => {
+  return api.learning.getPathById.useQuery(pathId);
+};
+
+export const useCourse = (courseId: string) => {
+  return api.learning.getCourseById.useQuery(courseId);
+};
+
+export const useLesson = (lessonId: string) => {
+  return api.learning.getLessonById.useQuery(lessonId);
+};
+
+export const useUserProgress = () => {
+  return api.learning.getUserProgress.useQuery();
+};
+
+export const useLeaderboard = (options: {
+  pathId?: string;
+  period: "weekly" | "monthly" | "all_time";
+  limit?: number;
+}) => {
+  return api.learning.getLeaderboard.useQuery(options);
 };

@@ -1,0 +1,11 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../../morse_backend"
+		}
+	],
+	"settings": {}
+}

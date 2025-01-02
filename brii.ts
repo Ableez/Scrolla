@@ -1,6 +1,16 @@
+import fs from "fs";
+import path from "path";
+
+import {
+  ColorSchemeSelect,
+  CourseSelect,
+  LearningPathSelect,
+  LevelSelect,
+} from "@/server/schema.types";
+
 const data = [
   {
-    id: "zr4Mklon7lqXyryqbbnsDT1a",
+    id: crypto.randomUUID(),
     slug: "foundational-math",
     title: "Foundational Math",
     description: "Master problem solving essentials in math",
@@ -9,6 +19,7 @@ const data = [
     isEnrolled: true,
     percentComplete: 1,
     wasRecommended: false,
+
     levels: [
       {
         number: 1,
@@ -18,7 +29,7 @@ const data = [
             id: "vOK1Omw3mOSpWhOBK",
             imageUrl:
               "https://ds055uzetaobb.cloudfront.net/brioche/chapter/pre-algebra-OzcAr4.png",
-            percentComplete: 2,
+            percentComplete: 100,
             retiringOn: null,
             slug: "pre-algebra",
             title: "Solving Equations",
@@ -48,7 +59,7 @@ const data = [
             id: "jZ5vZbVlbZTGjcbG5",
             imageUrl:
               "https://ds055uzetaobb.cloudfront.net/brioche/chapter/VariablesCourseCard_960x960-75LzA9.png",
-            percentComplete: 0,
+            percentComplete: 5,
             retiringOn: null,
             slug: "using-variables",
             title: "Real-World Algebra",
@@ -60,7 +71,7 @@ const data = [
             id: "ep5DpklqkpSpJID86",
             imageUrl:
               "https://ds055uzetaobb.cloudfront.net/brioche/chapter/introduction-to-algebra-6aL7ww.png",
-            percentComplete: 1,
+            percentComplete: 2,
             retiringOn: null,
             slug: "introduction-to-algebra",
             title: "Understanding Graphs",
@@ -78,7 +89,7 @@ const data = [
             id: "xa0qa6wA6acNOCpyE",
             imageUrl:
               "https://ds055uzetaobb.cloudfront.net/brioche/chapter/geometry-fundamentals-R3GX1g.png",
-            percentComplete: 0,
+            percentComplete: 99,
             retiringOn: null,
             slug: "geometry-fundamentals",
             title: "Geometry",
@@ -161,7 +172,7 @@ const data = [
     __typename: "LearningPath",
   },
   {
-    id: "zr4Mklon7lqXyryqbbns8F1z",
+    id: crypto.randomUUID(),
     slug: "science",
     title: "Science",
     description: "See the science in the world around you",
@@ -170,6 +181,7 @@ const data = [
     isEnrolled: true,
     percentComplete: 1,
     wasRecommended: false,
+
     levels: [
       {
         number: 1,
@@ -310,7 +322,7 @@ const data = [
     __typename: "LearningPath",
   },
   {
-    id: "zr4Mklon7lqXyryqbbnsJC18",
+    id: crypto.randomUUID(),
     slug: "data-analysis",
     title: "Data Analysis",
     description: "Know your stuff in probability and data analysis",
@@ -319,6 +331,7 @@ const data = [
     isEnrolled: true,
     percentComplete: 0,
     wasRecommended: false,
+
     levels: [
       {
         number: 1,
@@ -471,7 +484,7 @@ const data = [
     __typename: "LearningPath",
   },
   {
-    id: "zr4Mklon7lqXyryqbbnsVt1y",
+    id: crypto.randomUUID(),
     slug: "computer-science",
     title: "Programming & CS",
     description: "Speak the language of computers",
@@ -480,6 +493,7 @@ const data = [
     isEnrolled: true,
     percentComplete: 10,
     wasRecommended: false,
+
     levels: [
       {
         number: 1,
@@ -632,7 +646,7 @@ const data = [
     __typename: "LearningPath",
   },
   {
-    id: "Y7dJV5zAe5B0N7NBZZATEHVq",
+    id: crypto.randomUUID(),
     slug: "logical-reasoning",
     title: "Logical Reasoning",
     description: "Sharpen your reasoning skills",
@@ -641,6 +655,7 @@ const data = [
     isEnrolled: false,
     percentComplete: 9,
     wasRecommended: false,
+
     levels: [
       {
         number: 1,
@@ -727,7 +742,7 @@ const data = [
     __typename: "LearningPath",
   },
   {
-    id: "10kAMNG1zNlWQ0Ql551HoSYV",
+    id: crypto.randomUUID(),
     slug: "technology",
     title: "Technology",
     description: "Deepen your knowledge of how things work",
@@ -736,6 +751,7 @@ const data = [
     isEnrolled: false,
     percentComplete: 0,
     wasRecommended: false,
+
     levels: [
       {
         number: 1,
@@ -852,7 +868,7 @@ const data = [
     __typename: "LearningPath",
   },
   {
-    id: "m0xXrklOJkZYR0RZ55OHwUna",
+    id: crypto.randomUUID(),
     slug: "advanced-math",
     title: "Advanced Math",
     description: "Dive into key ideas in calculus, linear algebra, and beyond",
@@ -861,6 +877,7 @@ const data = [
     isEnrolled: false,
     percentComplete: 0,
     wasRecommended: false,
+
     levels: [
       {
         number: 1,
@@ -929,7 +946,7 @@ const data = [
     __typename: "LearningPath",
   },
   {
-    id: "LpN5kQbAeQWoapaW66AUYIm4",
+    id: crypto.randomUUID(),
     slug: "mind-bending-math",
     title: "Mind-Bending Math",
     description: "Stretch your mind to infinity",
@@ -938,6 +955,7 @@ const data = [
     isEnrolled: false,
     percentComplete: 2,
     wasRecommended: false,
+
     levels: [
       {
         number: 1,
@@ -1066,7 +1084,7 @@ const data = [
     __typename: "LearningPath",
   },
   {
-    id: "Y7dJV5zAe5B0N7NBZZATxsVm",
+    id: crypto.randomUUID(),
     slug: "puzzles",
     title: "Puzzles",
     description: "Put your problem solving skills to the test",
@@ -1075,6 +1093,7 @@ const data = [
     isEnrolled: false,
     percentComplete: 0,
     wasRecommended: false,
+
     levels: [
       {
         number: 1,
@@ -1234,4 +1253,127 @@ const mod = data.map((path) => {
   };
 });
 
-console.log(mod);
+const learningPaths: LearningPathSelect[] = data.map((path) => ({
+  id: path.id,
+  slug: path.slug,
+  title: path.title,
+  description: path.description,
+  imageUrl: path.imageUrl,
+  isEnrolled: path.isEnrolled,
+  percentComplete: path.percentComplete,
+  wasRecommended: path.wasRecommended,
+  suggestedCourseSlug: path.suggestedCourseSlug,
+  createdAt: new Date(),
+  updatedAt: new Date(),
+}));
+
+const levels: LevelSelect[] = data.flatMap((path) =>
+  path.levels.map((level) => ({
+    id: crypto.randomUUID(),
+    pathId: learningPaths.find((p) => p.slug === path.slug)?.id ?? "NOT_FOUND",
+    number: level.number,
+  }))
+);
+
+const courses: CourseSelect[] = data.flatMap((path) =>
+  path.levels.flatMap((level) =>
+    level.courses.map((course) => ({
+      id: course.id,
+      levelId: levels.find((l) => l.number === level.number)?.id ?? "NOT_FOUND",
+      title: course.title,
+      slug: course.slug,
+      imageUrl: course.imageUrl,
+      percentComplete: course.percentComplete,
+      isUpdated: course.upgraded,
+      desktopOnly: course.desktopOnly,
+      retiringOn: null,
+      pathId:
+        learningPaths.find((p) => p.slug === path.slug)?.id ?? "NOT_FOUND",
+    }))
+  )
+);
+
+const colorSchemes: ColorSchemeSelect[] = data.map((path) => ({
+  id: crypto.randomUUID(),
+  pathId: learningPaths.find((p) => p.slug === path.slug)?.id ?? "NOT_FOUND",
+  s300: path.colorScheme.s300,
+  s500: path.colorScheme.s500,
+  s100: `${path.colorScheme.s500}44`,
+  s200: `${path.colorScheme.s500}88`,
+  s700: `${path.colorScheme.s500}CC`,
+}));
+
+const seedData = {
+  learningPaths,
+  levels,
+  courses,
+  colorSchemes,
+};
+
+// Helper function to format value for SQL
+const formatSqlValue = (value: any): string => {
+  if (value === null) return "NULL";
+  if (typeof value === "string") return `'${value.replace(/'/g, "''")}'`;
+  if (value instanceof Date) return `'${value.toISOString()}'`;
+  return value.toString();
+};
+
+// Generate INSERT statements for each table
+const generateSqlInserts = (seedData: any) => {
+  let sqlStatements = [];
+
+  // Learning Paths
+
+  sqlStatements.push(
+    `-- Learning Paths\n` +
+      seedData.learningPaths
+        .map((path) => {
+          const columns = Object.keys(path).join(", ");
+          const values = Object.values(path).map(formatSqlValue).join(", ");
+          return `INSERT INTO morse_learning_paths (morse_${columns}) VALUES (${values});`;
+        })
+        .join("\n")
+  );
+
+  // Levels
+  sqlStatements.push(
+    `\n-- Levels\n` +
+      seedData.levels
+        .map((level) => {
+          const columns = Object.keys(level).join(", ");
+          const values = Object.values(level).map(formatSqlValue).join(", ");
+          return `INSERT INTO morse_levels (morse_${columns}) VALUES (${values});`;
+        })
+        .join("\n")
+  );
+
+  // Courses
+  sqlStatements.push(
+    `\n-- Courses\n` +
+      seedData.courses
+        .map((course) => {
+          const columns = Object.keys(course).join(", ");
+          const values = Object.values(course).map(formatSqlValue).join(", ");
+          return `INSERT INTO morse_courses (morse_${columns}) VALUES (${values});`;
+        })
+        .join("\n")
+  );
+
+  // Color Schemes
+  sqlStatements.push(
+    `\n-- Color Schemes\n` +
+      seedData.colorSchemes
+        .map((scheme) => {
+          const columns = Object.keys(scheme).join(", ");
+          const values = Object.values(scheme).map(formatSqlValue).join(", ");
+          return `INSERT INTO morse_color_schemes (morse_${columns}) VALUES (${values});`;
+        })
+        .join("\n")
+  );
+
+  return sqlStatements.join("\n");
+};
+
+// Replace the existing code with:
+const sqlInserts = generateSqlInserts(seedData);
+fs.writeFileSync("brilliant-paths.sql", sqlInserts);

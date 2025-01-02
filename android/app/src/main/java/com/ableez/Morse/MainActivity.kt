@@ -1,4 +1,4 @@
-package com.ableez.Scrolla
+package com.ableez.Morse
 import expo.modules.splashscreen.SplashScreenManager
 
 import android.os.Build

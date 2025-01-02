@@ -110,7 +110,7 @@ function CarouselItem({
           justifyContent: "flex-start",
           alignItems: "flex-start",
           padding: 12,
-          borderWidth: 2,
+          borderWidth: 1,
           borderBottomWidth: 6,
           borderColor: "#eee",
           borderRadius: 32,

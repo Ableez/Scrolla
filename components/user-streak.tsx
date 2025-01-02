@@ -1,7 +1,8 @@
-import { Text, View } from "react-native";
+import { View } from "react-native";
 import React from "react";
 import useTheme from "@/hooks/useTheme";
 import { userStreakData } from "@/_mock_/user/streak-data";
+import Text from "./text";
 
 const UserStreak = () => {
   const { colors, theme } = useTheme();
@@ -16,7 +17,9 @@ const UserStreak = () => {
           justifyContent: "space-between",
         }}
       >
-        <Text style={{ fontSize: 32, fontWeight: "bold" }}>For you</Text>
+        <Text variant="h1" weight="bold">
+          For you
+        </Text>
         <View
           style={{
             flexDirection: "row",

@@ -6,6 +6,8 @@ import { Home, Compass, BookOpen, Crown, User, Zap } from "lucide-react-native";
 import { HapticTab } from "@/components/HapticTab";
 import TabBarBackground from "@/components/ui/TabBarBackground";
 import useTheme from "@/hooks/useTheme";
+import HomeIcon from "@/assets/icons/home-outline";
+import CourseIcon from "@/assets/icons/course-icon";
 
 export default function TabLayout() {
   const { colors } = useTheme();
@@ -29,7 +31,7 @@ export default function TabLayout() {
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
-            borderWidth: 2,
+            borderWidth: 1,
             borderColor: "#004eed",
           },
         },
@@ -42,11 +44,7 @@ export default function TabLayout() {
           tabBarShowLabel: false,
           tabBarStyle: {},
           tabBarIcon: ({ color, focused }) => (
-            <Home
-              size={25}
-              strokeWidth={2.2}
-              color={focused ? "#34C759" : "#aaa"}
-            />
+            <HomeIcon filled={!focused} color={focused ? "#11AC59" : "#bbb"} />
           ),
         }}
       />
@@ -57,10 +55,9 @@ export default function TabLayout() {
           tabBarShowLabel: false,
           tabBarStyle: {},
           tabBarIcon: ({ color, focused }) => (
-            <BookOpen
-              size={25}
-              strokeWidth={2.2}
-              color={focused ? "#34C759" : "#aaa"}
+            <CourseIcon
+              filled={!focused}
+              color={focused ? "#11AC59" : "#bbb"}
             />
           ),
         }}
@@ -75,7 +72,7 @@ export default function TabLayout() {
             <Compass
               size={25}
               strokeWidth={2.2}
-              color={focused ? "#34C759" : "#aaa"}
+              color={focused ? "#11AC59" : "#bbb"}
             />
           ),
         }}
@@ -91,7 +88,7 @@ export default function TabLayout() {
             <Zap
               size={25}
               strokeWidth={2.2}
-              color={focused ? "#34C759" : "#aaa"}
+              color={focused ? "#11AC59" : "#bbb"}
             />
           ),
         }}

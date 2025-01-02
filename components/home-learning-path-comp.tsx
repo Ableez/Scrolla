@@ -28,7 +28,7 @@ const LearningPathComp: React.FC<LearningPathCompProps> = ({
         marginBottom: 16,
       }}
     >
-      <PathHeader
+      {/* <PathHeader
         courses={learningPath.levels.length}
         isEnrolled={learningPath.isEnrolled}
         levels={learningPath.levels.length}
@@ -46,7 +46,9 @@ const LearningPathComp: React.FC<LearningPathCompProps> = ({
         contentContainerStyle={{
           paddingBottom: 16,
         }}
-      />
+      /> */}
+
+      
     </View>
   );
 };

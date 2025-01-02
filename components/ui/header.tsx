@@ -1,8 +1,9 @@
 import { Ionicons } from "@expo/vector-icons";
 import { ThemedView } from "../ThemedView";
-import { Text, View, Image, TouchableOpacity } from "react-native";
+import { View, Image, TouchableOpacity } from "react-native";
 import useTheme from "@/hooks/useTheme";
 import { ThemedText } from "../ThemedText";
+import Text from "../text";
 
 const Header = () => {
   const { colors } = useTheme();
@@ -24,7 +25,7 @@ const Header = () => {
         >
           <Image
             style={{ width: 40, height: 40 }}
-            source={require("../../assets/images/user01.png")}
+            source={{ uri: "https://github.com/shadcn.png" }}
           />
         </View>
 
@@ -42,7 +43,7 @@ const Header = () => {
               }}
             >
               <Ionicons name={"search"} size={16} color={colors.text} />
-              <ThemedText style={{ fontSize: 16 }}>Explore</ThemedText>
+              <Text>Explore</Text>
             </View>
           </TouchableOpacity>
 

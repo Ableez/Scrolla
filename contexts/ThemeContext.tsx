@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useEffect, useMemo, useState } from "react";
 import { useColorScheme as useNativeColorScheme } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Colors } from "@/constants/Colors";
@@ -16,7 +16,9 @@ export const ThemeContext = createContext<ThemeContextType | undefined>(
 
 export const THEME_STORAGE_KEY = "@theme";
 
-export function ThemeProvider({ children }: { children: React.ReactNode }) {
+export function ThemeProvider({
+  children,
+}: Readonly<{ children: React.ReactNode }>) {
   const systemColorScheme = useNativeColorScheme();
   const [theme, setTheme] = useState<ThemeType>(systemColorScheme ?? "light");
 
@@ -34,14 +36,17 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     await AsyncStorage.setItem(THEME_STORAGE_KEY, newTheme);
   };
 
+  const contextValue = useMemo(
+    () => ({
+      theme,
+      toggleTheme,
+      colors: Colors[theme],
+    }),
+    [theme, toggleTheme]
+  ); // Add dependencies to useMemo
+
   return (
-    <ThemeContext.Provider
-      value={{
-        theme,
-        toggleTheme,
-        colors: Colors[theme],
-      }}
-    >
+    <ThemeContext.Provider value={contextValue}>
       {children}
     </ThemeContext.Provider>
   );

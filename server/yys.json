@@ -1,0 +1,36 @@
+[
+  {
+    "id": "247be540-f36f-4330-b399-81143d928271",
+    "slug": "math",
+    "title": "Simple Equations",
+    "description": "Learn to solve simple equations like a baby",
+    "imageUrl": "https://ds055uzetaobb.cloudfront.net/category-images/foundational-math-lI90N2.png",
+    "isEnrolled": false,
+    "percentComplete": 0,
+    "wasRecommended": false,
+    "suggestedCourseSlug": null,
+    "createdAt": "2024-12-21 14:51:58.668118",
+    "updatedAt": "2024-12-21 14:51:58.668118",
+    "colorSchemes": [],
+    "levels": [
+      {
+        "id": "052872f4-ffaa-431f-b237-8e7821048627",
+        "pathId": "247be540-f36f-4330-b399-81143d928271",
+        "number": 1,
+        "courses": [
+          {
+            "id": "ab620acc-153e-44b4-b9c5-3beec5d74ac4",
+            "levelId": "052872f4-ffaa-431f-b237-8e7821048627",
+            "title": "Algebra",
+            "slug": "simple_eqn_algebra",
+            "imageUrl": "https://ds055uzetaobb.cloudfront.net/brioche/chapter/pre-algebra-OzcAr4.png",
+            "percentComplete": 0,
+            "isUpdated": false,
+            "desktopOnly": false,
+            "retiringOn": null
+          }
+        ]
+      }
+    ]
+  }
+]

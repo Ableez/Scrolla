@@ -25,7 +25,7 @@ const CourseItem = ({
           width: "100%",
           backgroundColor: colors.secondaryBackground,
           borderRadius: 16,
-          borderWidth: 2,
+          borderWidth: 1,
           borderBottomWidth: 6,
           borderColor: "#ddd",
           justifyContent: "center",
