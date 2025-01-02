@@ -39,3 +39,5 @@ app-example
 
 
 ./sorry.ts
+
+*.code-workspace
