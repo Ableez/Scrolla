@@ -21,8 +21,12 @@ import { View, useColorScheme } from "react-native";
 import Text from "@/components/text";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
+import { ClerkProvider, ClerkLoaded } from "@clerk/clerk-expo";
+import { tokenCache } from "@/utils/cache";
 
 SplashScreen.preventAutoHideAsync();
+
+const publishableKey = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY!;
 
 export const localDB = openDatabaseSync("db2.db", {
   enableChangeListener: true,
@@ -97,56 +101,68 @@ export default function RootLayout() {
     );
   }
 
+  if (!publishableKey) {
+    throw new Error(
+      "Missing Publishable Key. Please set EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY in your .env"
+    );
+  }
+
   return (
-    <QueryClientProvider client={queryClient}>
-      <Suspense fallback={<Text>Loading DB...</Text>}>
-        <SQLiteProvider
-          databaseName="test4.db"
-          onInit={async (db) => {
-            await db.execAsync("PRAGMA journal_mode = WAL");
-            await db.execAsync("PRAGMA foreign_keys = ON");
-            migrate(
-              db as unknown as ExpoSQLiteDatabase<Record<string, unknown>>,
-              migrations
-            );
-          }}
-          useSuspense
-        >
-          <ThemeProvider>
-            <GestureHandlerRootView>
-              <BottomSheetModalProvider>
-                <NavigationThemeProvider
-                  value={theme === "dark" ? DarkTheme : DefaultTheme}
-                >
-                  <CardSlideProvider>
-                    <Stack>
-                      <Stack.Screen
-                        name="(tabs)"
-                        options={{ headerShown: false }}
-                      />
-                      <Stack.Screen
-                        name="course/[_courseId]"
-                        options={{
-                          headerShown: false,
-                          animation: "simple_push",
-                        }}
-                      />
-                      <Stack.Screen
-                        name="path/[pathId]"
-                        options={{
-                          headerShown: false,
-                        }}
-                      />
-                      <Stack.Screen name="+not-found" />
-                    </Stack>
-                    <StatusBar style={theme === "dark" ? "light" : "dark"} />
-                  </CardSlideProvider>
-                </NavigationThemeProvider>
-              </BottomSheetModalProvider>
-            </GestureHandlerRootView>
-          </ThemeProvider>
-        </SQLiteProvider>
-      </Suspense>
-    </QueryClientProvider>
+    <ClerkProvider tokenCache={tokenCache} publishableKey={publishableKey}>
+      <ClerkLoaded>
+        <QueryClientProvider client={queryClient}>
+          <Suspense fallback={<Text>Loading DB...</Text>}>
+            <SQLiteProvider
+              databaseName="test4.db"
+              onInit={async (db) => {
+                await db.execAsync("PRAGMA journal_mode = WAL");
+                await db.execAsync("PRAGMA foreign_keys = ON");
+                migrate(
+                  db as unknown as ExpoSQLiteDatabase<Record<string, unknown>>,
+                  migrations
+                );
+              }}
+              useSuspense
+            >
+              <ThemeProvider>
+                <GestureHandlerRootView>
+                  <BottomSheetModalProvider>
+                    <NavigationThemeProvider
+                      value={theme === "dark" ? DarkTheme : DefaultTheme}
+                    >
+                      <CardSlideProvider>
+                        <Stack>
+                          <Stack.Screen
+                            name="(tabs)"
+                            options={{ headerShown: false }}
+                          />
+                          <Stack.Screen
+                            name="course/[_courseId]"
+                            options={{
+                              headerShown: false,
+                              animation: "simple_push",
+                            }}
+                          />
+                          <Stack.Screen
+                            name="path/[pathId]"
+                            options={{
+                              headerShown: false,
+                            }}
+                          />
+                          <Stack.Screen name="+not-found" />
+                        </Stack>
+                        <StatusBar
+                          style={theme === "dark" ? "light" : "dark"}
+                        />
+                      </CardSlideProvider>
+                    </NavigationThemeProvider>
+                  </BottomSheetModalProvider>
+                </GestureHandlerRootView>
+              </ThemeProvider>
+            </SQLiteProvider>
+          </Suspense>
+        </QueryClientProvider>
+      </ClerkLoaded>
+    </ClerkProvider>
   );
 }

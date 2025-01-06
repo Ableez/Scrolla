@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   SafeAreaView,
   ScrollView,
@@ -6,6 +6,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   Dimensions,
+  Image,
 } from "react-native";
 import { PracticeCard } from "@/components/home-screen/practice-card";
 import { LessonCard } from "@/components/home-screen/lesson-card";
@@ -25,8 +26,12 @@ import {
 } from "@/components/drawer";
 import Svg, { Path } from "react-native-svg";
 import { FlashList } from "@shopify/flash-list";
+import BouncyButton from "@/components/bouncy-button";
+import { useUser } from "@clerk/clerk-expo";
 
 export default function App() {
+  const { isLoaded, isSignedIn, user } = useUser();
+
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView>
@@ -36,11 +41,41 @@ export default function App() {
             flexDirection: "row",
             justifyContent: "space-between",
             alignItems: "center",
+            paddingVertical: 16,
           }}
         >
-          <Text weight="bold" style={{ padding: 16, fontSize: 36 }}>
-            For you
-          </Text>
+          <BouncyButton
+            style={{ marginBottom: 16 }}
+            onPress={async () => router.push("/sign-up")}
+          >
+            <View
+              style={{
+                display: "flex",
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 8,
+                paddingLeft: 16,
+              }}
+            >
+              <Image
+                style={{ borderRadius: 100 }}
+                source={{ uri: user?.imageUrl }}
+                width={40}
+                height={40}
+              />
+              <Text
+                weight="bold"
+                style={{
+                  fontSize: 30,
+                  textTransform: "capitalize",
+                }}
+              >
+                {isSignedIn ? user.username : "For you"}
+              </Text>
+            </View>
+          </BouncyButton>
+
           <Drawer>
             <DrawerTrigger
               style={{
