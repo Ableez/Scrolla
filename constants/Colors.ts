@@ -1,13 +1,17 @@
 import { Platform } from "react-native";
 
 // Primary app color
-export const primaryColor = "#34C759";
-
+export const primaryColor = "#6254E3";
+export const secondaryColor = "#AFF583";
+export const primary_blue = ["#6254E3", "#5648CF"];
+export const primary_green = ["#AFF583", "#9EE376", "#8ED365"];
+export const primary_pink = ["#F583D7", "#E376BB"];
+export const primary_orange = ["#F5D183", "#E3B076"];
 // Define color palette
 const palette = {
   primary: {
     light: primaryColor,
-    dark: "#30D158", // iOS blue for dark mode
+    dark: "#5648CF", // iOS blue for dark mode
   },
   background: {
     light: "#FFFFFF",
@@ -22,7 +26,7 @@ const palette = {
     dark: "#EBEBF5",
   },
   tertiaryText: {
-    light: "#3C3C4399",
+    light: "#66666699",
     dark: "#EBEBF599",
   },
   separator: {
@@ -38,8 +42,8 @@ const palette = {
     dark: "#FF453A",
   },
   systemGreen: {
-    light: "#34C759",
-    dark: "#30D158",
+    light: "#eb0000",
+    dark: "#7776E3",
   },
   primaryText: {
     main: "#FFFFFF",

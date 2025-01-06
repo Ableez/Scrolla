@@ -7,8 +7,10 @@ import type {
   LearningPathWithRelations,
   LevelWithRelations,
   CourseWithRelations,
-  CourseSelect,
 } from "@/server/schema.types";
+import { expoDB } from "@/app/_layout";
+import { allLearningPaths } from "@/storage/sqlite/schema";
+import { DB_queryAllPaths } from "@/storage/sqlite/statements";
 
 // State Types
 type DataState<T> = {
@@ -185,14 +187,14 @@ export const usePathStore = create<LearningPlatformStore>()(
 export const useLearningPaths = () => {
   const store = usePathStore();
   const [isLoading, setIsLoading] = useState(false);
+
   const fetchData = async () => {
     try {
       setIsLoading(true);
-      const query = await root.learning.getAllPaths();
 
-      if (query) {
-        store.setLearningPaths(query);
-      }
+      const qr = await (await DB_queryAllPaths).executeAsync();
+
+      console.log("1:", qr);
     } catch (error) {
       console.error(
         "OH SHITT! Something went wrong while fetching learning paths",

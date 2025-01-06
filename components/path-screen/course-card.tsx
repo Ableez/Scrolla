@@ -1,40 +1,17 @@
-import React, { useCallback } from "react";
-import { TouchableOpacity, Animated, Image, StyleSheet } from "react-native";
+import React from "react";
+import { Image, StyleSheet } from "react-native";
 import { router } from "expo-router";
 import Text from "../text";
-
-const AnimatedTouchable = Animated.createAnimatedComponent(TouchableOpacity);
+import BouncyButton from "../bouncy-button";
 
 const CourseCard = React.memo(
   ({ course, pathId }: { course: any; pathId: string }) => {
-    const scaleAnim = React.useRef(new Animated.Value(1)).current;
-
-    const handlePressIn = useCallback(() => {
-      Animated.spring(scaleAnim, {
-        toValue: 0.92,
-        useNativeDriver: true,
-        tension: 12,
-        friction: 3,
-      }).start();
-    }, []);
-
-    const handlePressOut = useCallback(() => {
-      Animated.spring(scaleAnim, {
-        toValue: 1,
-        useNativeDriver: true,
-        tension: 10,
-        friction: 3,
-      }).start();
-    }, []);
-
     return (
-      <AnimatedTouchable
+      <BouncyButton
         activeOpacity={0.8}
-        onPress={() => console.log("Pressed", course.id)}
-        // onPress={() => router.push(`/course/${course.id}__${pathId}`)}
-        onPressIn={handlePressIn}
-        onPressOut={handlePressOut}
-        style={[styles.courseItem, { transform: [{ scale: scaleAnim }] }]}
+        // onPress={() => console.log("Pressed", course.id)}
+        onPress={() => router.push(`/course/${course.id}__${pathId}`)}
+        style={[styles.courseItem]}
       >
         <Image
           source={{
@@ -43,7 +20,7 @@ const CourseCard = React.memo(
           style={styles.courseThumb}
         />
         <Text style={styles.courseTitle}>{course.title}</Text>
-      </AnimatedTouchable>
+      </BouncyButton>
     );
   }
 );

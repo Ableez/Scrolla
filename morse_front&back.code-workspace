@@ -1,11 +1,21 @@
 {
-	"folders": [
-		{
-			"path": "."
-		},
-		{
-			"path": "../../morse_backend"
-		}
-	],
-	"settings": {}
+  "folders": [
+    {
+      "path": "."
+    },
+    {
+      "path": "../../morse_backend"
+    }
+  ],
+  "settings": {
+    "sqltools.useNodeRuntime": true,
+    "sqltools.connections": [
+      {
+        "previewLimit": 50,
+        "driver": "SQLite",
+        "name": "loc",
+        "database": "test.sql"
+      }
+    ]
+  }
 }

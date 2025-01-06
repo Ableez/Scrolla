@@ -28,13 +28,22 @@ export interface ContentOptions extends KatexOptions {
   expression?: string;
 }
 
-function getContent({ inlineStyle, expression, ...options }: ContentOptions) {
+function getContent({
+  inlineStyle,
+  expression,
+  output = "html",
+  ...options
+}: ContentOptions) {
   return `<!DOCTYPE html>
 <html>
 <head>
 <style>
 ${katexStyle}
 ${inlineStyle}
+@font-face {
+  font-family: main_katex; 
+  src: url(../assets/fonts/katex/KaTeX_Main-Regular.woff);
+}
 </style>
 <script>
 window.onerror = e => document.write(e);
@@ -45,7 +54,7 @@ ${katexScript}
 </script>
 </head>
 <body>
-<span id="rendered" style="height: 100%; font-size: 4em;"></span>
+<span id="rendered" style="height: 100%; font-size: 4em; font-family: main_katex;"></span>
 </body>
 </html>
 `;

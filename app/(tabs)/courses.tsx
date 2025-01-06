@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import {
   ActivityIndicator,
   Dimensions,
@@ -8,16 +8,13 @@ import {
   StyleSheet,
   TouchableOpacity,
   View,
+  Animated as NativeAnimated,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Animated, {
   useAnimatedScrollHandler,
   useSharedValue,
-  useAnimatedStyle,
-  interpolate,
-  Extrapolation,
   SharedValue,
-  withTiming,
 } from "react-native-reanimated";
 import { FlashList } from "@shopify/flash-list";
 import { LinearGradient } from "expo-linear-gradient";
@@ -25,26 +22,16 @@ import { Search } from "lucide-react-native";
 import { router } from "expo-router";
 
 import useTheme from "@/hooks/useTheme";
-import {
-  useLearningPath,
-  useLearningPaths,
-  usePathStore,
-} from "@/hooks/usePathsStore";
+import { useLearningPaths } from "@/hooks/usePathsStore";
 import ErrorState from "@/components/error-state";
 import { FALLBACK_IMAGE_URL } from "@/constants/Var";
-import { learningPaths } from "../../../../morse_backend/src/server/db/schema";
 import {
   LearningPathWithRelations,
   CourseSelect,
   LevelWithRelations,
 } from "@/server/schema.types";
 import Text from "@/components/text";
-
-// Type definitions
-interface ColorScheme {
-  s300: string;
-  s500: string;
-}
+import BouncyButton from "@/components/bouncy-button";
 
 interface EnhancedLearningPath
   extends Omit<LearningPathWithRelations, "levels"> {
@@ -70,170 +57,109 @@ const AnimatedFlashList = Animated.createAnimatedComponent(FlashList);
 
 const CourseItem: React.FC<CourseItemProps> = React.memo(
   ({ item, index, scrollY, theme }) => {
-    const [pressed, setPressed] = useState(false);
     const { colors } = useTheme();
-    const itemAnimatedStyle = useAnimatedStyle(() => {
-      const inputRange = [
-        (index - 1) * ITEM_HEIGHT,
-        index * ITEM_HEIGHT,
-        (index + 1) * ITEM_HEIGHT,
-      ];
-
-      return {
-        transform: [
-          {
-            translateY: interpolate(
-              scrollY.value,
-              inputRange,
-              [0, 0, -STICKY_HEADER_HEIGHT],
-              Extrapolation.CLAMP
-            ),
-          },
-          {
-            scale: interpolate(
-              scrollY.value,
-              inputRange,
-              [0.95, 1, 0.95],
-              Extrapolation.CLAMP
-            ),
-          },
-        ],
-        opacity: interpolate(
-          scrollY.value,
-          inputRange,
-          [0.8, 1, 0.8],
-          Extrapolation.CLAMP
-        ),
-      };
-    });
-    const borderWidthAnim = useSharedValue(6);
-
-    const borderAnimatedStyle = useAnimatedStyle(() => {
-      return {
-        borderBottomWidth: withTiming(borderWidthAnim.value, {
-          duration: 250,
-        }),
-      };
-    });
 
     return (
-      <Pressable
+      <BouncyButton
+        style={[styles.courseItemContainer, { minHeight: ITEM_HEIGHT }]}
         onPress={() => router.navigate(`/path/${item.id}`)}
-        onPressIn={() => {
-          setPressed(true);
-        }}
-        onPressOut={() => {
-          setPressed(false);
-        }}
       >
-        <Animated.View
+        <View
           style={[
-            itemAnimatedStyle,
-            styles.courseItemContainer,
-            { minHeight: ITEM_HEIGHT },
+            styles.courseItem,
+            {
+              borderColor: theme === "dark" ? "#99999933" : "#aaaaaa44",
+              height: ITEM_HEIGHT,
+              borderBottomWidth: 6,
+            },
           ]}
         >
-          <View
-            style={[
-              borderAnimatedStyle,
-              styles.courseItem,
-              {
-                borderColor: theme === "dark" ? "#99999933" : "#aaaaaa44",
-                height: ITEM_HEIGHT,
-                borderBottomWidth: pressed ? 1 : 6,
-              },
-            ]}
-          >
-            {item.currentLevel && (
-              <View style={[styles.inProgressBadge, { borderColor: `#ddd` }]}>
-                <Text
-                  style={[styles.inProgressText, { color: colors.primary }]}
-                  weight="semiBold"
-                >
-                  IN PROGRESS
-                </Text>
-              </View>
-            )}
-            {item.currentLevel && (
+          {item.currentLevel && (
+            <View style={[styles.inProgressBadge, { borderColor: `#ddd` }]}>
               <Text
-                style={[
-                  styles.levelText,
-                  { color: `${item.colorScheme?.s500}` },
-                ]}
+                style={[styles.inProgressText, { color: colors.primary }]}
+                weight="semiBold"
               >
-                LEVEL {item.currentLevel}
+                IN PROGRESS
               </Text>
-            )}
-            <View style={styles.imageContainer}>
-              <View
-                style={[
-                  styles.imageBackground,
-                  { backgroundColor: `${item.colorScheme?.s300}22` },
-                ]}
-              >
-                <Image
-                  source={require("../../assets/images/backdrop.png")}
-                  style={styles.backdropImage}
-                />
-              </View>
+            </View>
+          )}
+          {item.currentLevel && (
+            <Text
+              style={[styles.levelText, { color: `${item.colorScheme?.s500}` }]}
+            >
+              LEVEL {item.currentLevel}
+            </Text>
+          )}
+          <View style={styles.imageContainer}>
+            <View
+              style={[
+                styles.imageBackground,
+                { backgroundColor: `${item.colorScheme?.s300}22` },
+              ]}
+            >
               <Image
-                source={{ uri: item.imageUrl ?? FALLBACK_IMAGE_URL }}
-                style={styles.courseImage}
+                source={require("../../assets/images/backdrop.png")}
+                style={styles.backdropImage}
               />
             </View>
-            <View style={styles.courseContent}>
-              <View>
-                {!item.currentLevel && item.levels && (
-                  <Text
-                    variant="caption"
-                    color="#888"
-                    style={styles.courseMetaInfo}
-                  >
-                    {item.levels.length} LEVELS •{" "}
-                    {item.levels.reduce(
-                      (acc, level) => acc + (level.courses?.length ?? 0),
-                      0
-                    )}{" "}
-                    COURSES
-                  </Text>
-                )}
-                <Text variant="h2" weight="semiBold">
-                  {item.title}
+            <Image
+              source={{ uri: item.imageUrl ?? FALLBACK_IMAGE_URL }}
+              style={styles.courseImage}
+            />
+          </View>
+          <View style={styles.courseContent}>
+            <View>
+              {!item.currentLevel && item.levels && (
+                <Text
+                  variant="caption"
+                  color="#888"
+                  style={styles.courseMetaInfo}
+                >
+                  {item.levels.length} LEVELS •{" "}
+                  {item.levels.reduce(
+                    (acc, level) => acc + (level.courses?.length ?? 0),
+                    0
+                  )}{" "}
+                  COURSES
                 </Text>
-                {!item.currentLevel && (
-                  <Text
-                    style={[
-                      styles.courseDescription,
-                      { color: `${colors.text}88` },
-                    ]}
-                  >
-                    {item.description}
-                  </Text>
-                )}
-                {item.currentLevel && item.currentCourse && (
-                  <Text style={styles.currentCourseTitle}>
-                    {item.currentCourse.title}{" "}
-                    {item.currentCourse.percentComplete}%
-                  </Text>
-                )}
-              </View>
+              )}
+              <Text variant="h2" weight="semiBold">
+                {item.title}
+              </Text>
+              {!item.currentLevel && (
+                <Text
+                  style={[
+                    styles.courseDescription,
+                    { color: `${colors.text}88` },
+                  ]}
+                >
+                  {item.description}
+                </Text>
+              )}
               {item.currentLevel && item.currentCourse && (
-                <View style={[styles.progressBar, { backgroundColor: "#eee" }]}>
-                  <View
-                    style={[
-                      styles.progressBarFill,
-                      {
-                        backgroundColor: colors.primary,
-                        width: `${item.currentCourse.percentComplete}%`,
-                      },
-                    ]}
-                  />
-                </View>
+                <Text style={styles.currentCourseTitle}>
+                  {item.currentCourse.title}{" "}
+                  {item.currentCourse.percentComplete}%
+                </Text>
               )}
             </View>
+            {item.currentLevel && item.currentCourse && (
+              <View style={[styles.progressBar, { backgroundColor: "#eee" }]}>
+                <View
+                  style={[
+                    styles.progressBarFill,
+                    {
+                      backgroundColor: colors.primary,
+                      width: `${item.currentCourse.percentComplete}%`,
+                    },
+                  ]}
+                />
+              </View>
+            )}
           </View>
-        </Animated.View>
-      </Pressable>
+        </View>
+      </BouncyButton>
     );
   }
 );
@@ -395,7 +321,7 @@ const Courses: React.FC = () => {
         <Text style={{ fontSize: 28 }} weight="medium">
           Courses
         </Text>
-        <TouchableOpacity>
+        <TouchableOpacity onPress={() => router.push("/search")}>
           <Search size={26} color={theme === "dark" ? "#fff" : "#000"} />
         </TouchableOpacity>
       </View>
@@ -441,6 +367,7 @@ const Courses: React.FC = () => {
                 style={{
                   color:
                     selectedCategory === item ? "#000" : colors.tertiaryText,
+                  fontSize: 14,
                 }}
                 weight={"medium"}
               >
@@ -481,9 +408,6 @@ const Courses: React.FC = () => {
               </Text>
             </View>
           )}
-          snapToAlignment={"start"}
-          snapToInterval={ITEM_HEIGHT + 10}
-          decelerationRate={0.88}
         />
       ) : !isLoading && !filteredPaths.length ? (
         <View style={styles.emptyStateContainer}>
@@ -543,7 +467,7 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
   },
   coursesContentContainer: {
-    paddingHorizontal: 16,
+    paddingHorizontal: 20,
     paddingTop: HEADER_HEIGHT / 1.618,
   },
   courseItemContainer: {

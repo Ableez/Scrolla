@@ -1,108 +1,99 @@
+import React, { useEffect, useRef, useState } from "react";
 import {
-  Image,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
   View,
+  TouchableOpacity,
+  StyleSheet,
+  Animated,
+  ActivityIndicator,
+  Dimensions,
 } from "react-native";
-import React, { useEffect } from "react";
+import { ChevronLeft, Dumbbell, GraduationCap } from "lucide-react-native";
+import { primaryColor } from "@/constants/Colors";
 import { router, useLocalSearchParams, useNavigation } from "expo-router";
 import { usePathStore } from "@/hooks/usePathsStore";
 import ErrorState from "@/components/error-state";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { ChevronLeftIcon, Dumbbell, LandPlot } from "lucide-react-native";
-import useTheme from "@/hooks/useTheme";
-import { ThemedView } from "@/components/ThemedView";
-import { Course } from "@/types/learning";
-import { FALLBACK_IMAGE_URL } from "@/constants/Var";
+import Text from "@/components/text";
+import { CourseWithRelations } from "@/server/schema.types";
+import { root } from "@/server/root";
+import { FlashList } from "@shopify/flash-list";
+import LessonNode from "@/components/course-screen/lesson-node";
+import Svg, { Path } from "react-native-svg";
+import { LinearGradient } from "expo-linear-gradient";
+import { BottomSheetModal } from "@gorhom/bottom-sheet";
+import {
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from "@/components/drawer";
 
-const Header = ({
-  course,
-  colorScheme,
-}: {
-  colorScheme: { s300: string; s500: string };
-  course: Course;
-}) => {
-  const { colors } = useTheme();
-  return (
-    <View>
-      <View style={{ paddingHorizontal: 16, paddingVertical: 8 }}>
-        <TouchableOpacity onPress={() => router.back()}>
-          <ChevronLeftIcon size={28} color={colors.text} />
-        </TouchableOpacity>
-      </View>
-
-      <View style={styles.imageContainer}>
-        <View
-          style={[
-            styles.imageBackground,
-            { backgroundColor: `${colorScheme.s300}22` },
-          ]}
-        >
-          <Image
-            source={require("../../assets/images/backdrop.png")}
-            style={styles.backdropImage}
-          />
-          <View
-            style={{
-              backgroundColor: `${colorScheme.s300}88`,
-              width: "100%",
-              height: 20,
-              position: "absolute",
-              bottom: 0,
-              left: 0,
-            }}
-          />
-          <View
-            style={{
-              backgroundColor: `${colorScheme.s300}99`,
-              width: "100%",
-              height: 10,
-              position: "absolute",
-              bottom: 0,
-              left: 0,
-            }}
-          />
-        </View>
-        <Image
-          source={{ uri: course.imageUrl ?? FALLBACK_IMAGE_URL }}
-          style={styles.courseImage}
-        />
-      </View>
-
-      <View style={{ paddingHorizontal: 16, paddingTop: 10 }}>
-        <Text style={{ color: colors.text, fontSize: 32, fontWeight: "bold" }}>
-          {course.title}
-        </Text>
-        <Text
-          style={{
-            color: colors.tertiaryText,
-            fontSize: 16,
-            marginTop: 4,
-          }}
-        >
-          We will tell you all you need to know about this course here.
-        </Text>
-      </View>
-    </View>
+export default function MorseLesson() {
+  const fadeAnim = new Animated.Value(0);
+  const slideAnim = new Animated.Value(10);
+  const [courseData, setCourseData] = useState<CourseWithRelations | null>(
+    null
   );
-};
-
-const CourseInformation = () => {
+  const [isFetching, setIsFetching] = useState(false);
   const { _courseId } = useLocalSearchParams();
-  const { colors } = useTheme();
   const navigation = useNavigation();
-
   const { getCourseById, getPathById } = usePathStore();
-
   const [courseId, pathId] = String(_courseId).split("__");
+
+  const bottomSheetRef = useRef<BottomSheetModal>(null);
+  const openDrawer = () => {
+    bottomSheetRef.current?.present();
+  };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setIsFetching(true);
+      try {
+        const course = await root.learning.getCourseById(String(courseId));
+
+        setCourseData(course);
+      } catch (error) {
+        console.error("Error fetching course data", error);
+        return null;
+      } finally {
+        setIsFetching(false);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   useEffect(() => {
     navigation.setOptions({
       headerShown: false,
     });
   }, [courseId]);
+
+  const course = getCourseById(courseId, {
+    with: {
+      levels: true,
+    },
+  });
+  const path = getPathById(pathId);
+
+  useEffect(() => {
+    // Animate content on mount
+    Animated.parallel([
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 150,
+        useNativeDriver: true,
+      }),
+      Animated.timing(slideAnim, {
+        toValue: 0,
+        duration: 150,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  }, []);
 
   if (!courseId) {
     return (
@@ -114,123 +105,304 @@ const CourseInformation = () => {
     );
   }
 
-  const course = getCourseById(courseId, {
-    with: {
-      levels: true,
-    },
-  });
-  const path = getPathById(pathId);
-
   return (
-    <SafeAreaView>
-      <ThemedView>
-        <View style={{ paddingHorizontal: 16, paddingVertical: 4 }}>
-          <TouchableOpacity onPress={() => router.back()}>
-            <ChevronLeftIcon color={colors.text} size={28} />
-          </TouchableOpacity>
+    <View style={styles.container}>
+      {/* Header */}
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => router.back()}>
+          <ChevronLeft size={24} color="#000" />
+        </TouchableOpacity>
+
+        <Drawer>
+          <DrawerTrigger>
+            <Svg width="29" height="29" viewBox="0 0 24 24" fill={"#ccc"}>
+              <Path stroke="none" d="M0 0h24v24H0z" fill="none" />
+              <Path d="M13 2l.018 .001l.016 .001l.083 .005l.011 .002h.011l.038 .009l.052 .008l.016 .006l.011 .001l.029 .011l.052 .014l.019 .009l.015 .004l.028 .014l.04 .017l.021 .012l.022 .01l.023 .015l.031 .017l.034 .024l.018 .011l.013 .012l.024 .017l.038 .034l.022 .017l.008 .01l.014 .012l.036 .041l.026 .027l.006 .009c.12 .147 .196 .322 .218 .513l.001 .012l.002 .041l.004 .064v6h5a1 1 0 0 1 .868 1.497l-.06 .091l-8 11c-.568 .783 -1.808 .38 -1.808 -.588v-6h-5a1 1 0 0 1 -.868 -1.497l.06 -.091l8 -11l.01 -.013l.018 -.024l.033 -.038l.018 -.022l.009 -.008l.013 -.014l.04 -.036l.028 -.026l.008 -.006a1 1 0 0 1 .402 -.199l.011 -.001l.027 -.005l.074 -.013l.011 -.001l.041 -.002z" />
+            </Svg>
+          </DrawerTrigger>
+          <DrawerContent>
+            <View>
+              <Text>Hello</Text>
+            </View>
+          </DrawerContent>
+        </Drawer>
+      </View>
+
+      {/* Content */}
+      {/* header shrinks to this on scroll */}
+      <Animated.View
+        style={[
+          {
+            position: "absolute",
+            top: 40,
+            width: "100%",
+            paddingHorizontal: 20,
+            opacity: fadeAnim,
+            transform: [
+              { translateY: slideAnim },
+              { scale: 0.95 },
+              { translateX: 0.5 },
+            ],
+            zIndex: 10,
+          },
+        ]}
+      >
+        <View
+          style={[
+            styles.titleContainer,
+            {
+              marginBottom: 10,
+            },
+          ]}
+        >
+          <View
+            style={{
+              width: "100%",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <Text
+              weight="semiBold"
+              style={[
+                styles.label,
+                {
+                  textTransform: "uppercase",
+                  textAlign: "center",
+                  width: "100%",
+                },
+              ]}
+            >
+              {path?.title}
+            </Text>
+
+            <Text weight="semiBold" style={styles.title}>
+              {course?.title}
+            </Text>
+          </View>
+          {/* <Image
+            source={{ uri: course?.imageUrl ?? FALLBACK_IMAGE_URL }}
+            width={72}
+            height={72}
+          /> */}
         </View>
-        <ScrollView>
-          <View
-            style={{
-              paddingHorizontal: 20,
-              marginTop: 16,
-              display: "flex",
-              flexDirection: "row",
-              justifyContent: "space-between",
-              alignItems: "center",
-            }}
-          >
-            <View style={{ maxWidth: "80%" }}>
-              <Text
-                style={{
-                  textTransform: "uppercase",
-                  fontWeight: "700",
-                  color: `${path?.colorScheme?.s500}`,
-                }}
-              >
-                {path?.title} &bull; Level {path?.currentLevelNumber}
-              </Text>
-              <Text
-                style={{
-                  textTransform: "uppercase",
-                  fontWeight: "800",
-                  fontSize: 20,
-                }}
-              >
-                {course?.level?.number}.{course?.courseNumber} {course?.title}
-              </Text>
-            </View>
-            <Image
-              source={{ uri: course?.imageUrl ?? FALLBACK_IMAGE_URL }}
-              style={{ width: 62, height: 62 }}
-            />
-          </View>
 
+        <View
+          style={{
+            marginBottom: 0,
+            marginTop: 0,
+            width: "60%",
+            marginInline: "auto",
+          }}
+        >
           <View
             style={{
-              display: "flex",
-              flexDirection: "row",
-              alignItems: "center",
-              paddingHorizontal: 20,
-              gap: 18,
+              backgroundColor: "#eee",
+              width: "100%",
+              height: 10,
+              borderRadius: 100,
             }}
           >
             <View
               style={{
-                display: "flex",
-                flexDirection: "row",
-                alignItems: "center",
-                gap: 4,
+                backgroundColor: primaryColor,
+                width: "10%",
+                height: 10,
+                borderRadius: 100,
               }}
+            ></View>
+          </View>
+        </View>
+        <View style={[styles.infoRow, { display: "none" }]}>
+          <View style={styles.infoItem}>
+            <GraduationCap size={24} color="#333" />
+            <Text style={styles.infoText}>{course?.courseNumber} Levels</Text>
+          </View>
+          <View style={styles.infoItem}>
+            <Dumbbell size={20} color="#333" />
+            <Text style={styles.infoText}>8 exercises</Text>
+          </View>
+        </View>
+      </Animated.View>
+      <LinearGradient
+        colors={["#fff", "#fff", "rgba(255, 255, 255, 0)"]}
+        style={{
+          zIndex: 11,
+          height: 100,
+          position: "absolute",
+          top: 105,
+          left: 0,
+          width: "100%",
+        }}
+      />
+
+      {/* initial header */}
+      {/* <Animated.View
+        style={[
+          styles.content,
+          {
+            opacity: fadeAnim,
+            transform: [{ translateY: slideAnim }],
+          },
+        ]}
+      >
+        <View style={styles.titleContainer}>
+          <View
+            style={{
+              maxWidth: "75%",
+            }}
+          >
+            <Text
+              weight="semiBold"
+              style={[styles.label, { textTransform: "uppercase" }]}
             >
-              <LandPlot size={18} strokeWidth={2.3} color={colors.text} />
-              <Text style={{ fontWeight: "600", fontSize: 16 }}>
-                12 Lessons
-              </Text>
-            </View>
+              {path?.title}
+            </Text>
+
+            <Text weight="semiBold" style={styles.title}>
+              {course?.title}
+            </Text>
+          </View>
+          <Image
+            source={{ uri: course?.imageUrl ?? FALLBACK_IMAGE_URL }}
+            width={72}
+            height={72}
+          />
+        </View>
+
+        <View style={{ marginBottom: 16, marginTop: 8 }}>
+          <View
+            style={{
+              backgroundColor: "#eee",
+              width: "100%",
+              height: 10,
+              borderRadius: 100,
+            }}
+          >
             <View
               style={{
-                display: "flex",
-                flexDirection: "row",
-                alignItems: "center",
-                gap: 4,
+                backgroundColor: primaryColor,
+                width: "10%",
+                height: 10,
+                borderRadius: 100,
               }}
-            >
-              <Dumbbell size={18} strokeWidth={2.3} color={colors.text} />
-              <Text style={{ fontWeight: "600", fontSize: 16 }}>
-                12 Lessons
-              </Text>
-            </View>
+            ></View>
           </View>
-        </ScrollView>
-      </ThemedView>
-    </SafeAreaView>
+        </View>
+        <View style={styles.infoRow}>
+          <View style={styles.infoItem}>
+            <GraduationCap size={24} color="#333" />
+            <Text style={styles.infoText}>{course?.courseNumber} Levels</Text>
+          </View>
+          <View style={styles.infoItem}>
+            <Dumbbell size={20} color="#333" />
+            <Text style={styles.infoText}>8 exercises</Text>
+          </View>
+        </View>
+      </Animated.View> */}
+
+      {isFetching ? (
+        <ActivityIndicator color={"#000"} size="large" />
+      ) : (
+        <View style={{ height: Dimensions.get("screen").height - 120 }}>
+          <FlashList
+            data={courseData?.lessons}
+            renderItem={({ item, index }) => (
+              <LessonNode item={item} index={index} />
+            )}
+            estimatedItemSize={100}
+            contentContainerStyle={{ paddingTop: 60 }}
+          />
+        </View>
+      )}
+    </View>
   );
-};
-
-export default CourseInformation;
+}
 
 const styles = StyleSheet.create({
-  courseImage: {
-    width: 115,
-    height: 115,
-    resizeMode: "cover",
+  container: {
+    flex: 1,
+    backgroundColor: "#fff",
+    paddingTop: 48,
   },
-  imageContainer: {
-    position: "relative",
-    height: 135,
-    justifyContent: "flex-end",
+  header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
     alignItems: "center",
+    paddingHorizontal: 20,
+    marginBottom: 32,
+    zIndex: 12,
+    paddingVertical: 4,
   },
-  imageBackground: {
+  content: {
+    paddingHorizontal: 20,
+  },
+  label: {
+    fontSize: 12,
+    color: "#333",
+  },
+  titleContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+    marginBottom: 12,
+  },
+  title: {
+    fontSize: 24,
+  },
+  MorseBadge: {
+    backgroundColor: primaryColor,
+    borderRadius: 12,
+    padding: 8,
+    marginLeft: 16,
+  },
+  morseText: {
+    color: "#fff",
+    fontSize: 18,
+  },
+  subtitle: {
+    fontSize: 18,
+    color: "#333",
+    lineHeight: 26,
+    marginBottom: 24,
+  },
+  infoRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 20,
+    marginBottom: 10,
+  },
+  infoItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginRight: 24,
+  },
+  infoText: {
+    fontSize: 16,
+    color: "#333",
+    marginLeft: 8,
+  },
+  button: {
+    backgroundColor: primaryColor,
+    borderRadius: 12,
+    padding: 16,
+    alignItems: "center",
+    marginBottom: 32,
+  },
+  buttonText: {
+    color: "#fff",
+    fontSize: 18,
+    fontWeight: "600",
+  },
+  description: {
+    fontSize: 16,
+    color: "#333",
+    lineHeight: 24,
+  },
+  bookmarkButton: {
     position: "absolute",
-    width: "100%",
-    height: "100%",
-  },
-  backdropImage: {
-    width: "100%",
-    height: 135,
-    resizeMode: "cover",
-    opacity: 0.22,
+    right: 20,
+    bottom: -60,
   },
 });

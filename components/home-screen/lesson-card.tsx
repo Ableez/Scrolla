@@ -1,46 +1,57 @@
 import React from "react";
-import { View, Image, StyleSheet, Pressable } from "react-native";
+import { View, Image, StyleSheet, Pressable, Dimensions } from "react-native";
 import Text from "../text";
-import { router } from "expo-router";
+import RectangleProgress from "../swipe-screen/rect-progress";
 
 export function LessonCard() {
   return (
-    <Pressable onPress={() => router.push(`/swipe/1`)}>
-      <View style={styles.card}>
-        <View
-          style={{
-            width: "100%",
-            height: 200,
-            position: "absolute",
-            top: 0,
-            left: 0,
-            backgroundColor: "#F5F8FF",
-          }}
-        >
-          <Image
-            src={"../../assets/images/backdrop.png"}
+    <View
+      style={{
+        width: Dimensions.get("screen").width,
+        paddingHorizontal: 24,
+      }}
+    >
+      <Pressable>
+        <View style={styles.card}>
+          <View
             style={{
               width: "100%",
               height: 200,
+              position: "absolute",
+              top: 0,
+              left: 0,
+              backgroundColor: "#F5F8FF",
             }}
-            resizeMode="cover"
+          >
+            <Image
+              src={"../../assets/images/backdrop.png"}
+              style={{
+                width: "100%",
+                height: 200,
+              }}
+              resizeMode="cover"
+            />
+          </View>
+          <Image
+            source={{
+              uri: "https://ds055uzetaobb.cloudfront.net/category-images/foundational-math-lI90N2.png",
+            }}
+            style={styles.image}
+            resizeMode="contain"
           />
+          <View style={styles.textContainer}>
+            <Text style={styles.label}>FOUNDATIONAL MATH • LEVEL 2</Text>
+            <Text weight="semiBold" style={styles.title}>
+              2.1 Understanding Graphs
+            </Text>
+          </View>
+
+          <View style={{ padding: 16 }}>
+            <RectangleProgress progress={0.72} width={270} height={8} />
+          </View>
         </View>
-        <Image
-          source={{
-            uri: "https://ds055uzetaobb.cloudfront.net/category-images/foundational-math-lI90N2.png",
-          }}
-          style={styles.image}
-          resizeMode="contain"
-        />
-        <View style={styles.textContainer}>
-          <Text style={styles.label}>MATH • LEVEL 2</Text>
-          <Text weight="semiBold" style={styles.title}>
-            Understanding Graphs
-          </Text>
-        </View>
-      </View>
-    </Pressable>
+      </Pressable>
+    </View>
   );
 }
 
@@ -54,6 +65,7 @@ const styles = StyleSheet.create({
     borderColor: "#E0E0E0",
     borderBottomWidth: 6,
     position: "relative",
+    height: 330,
   },
   image: {
     width: "100%",

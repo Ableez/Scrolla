@@ -1,21 +1,29 @@
 import React from "react";
 import { View, TouchableOpacity, StyleSheet } from "react-native";
 import Text from "../text";
+import { Image } from "react-native";
+import { secondaryColor } from "@/constants/Colors";
 
 export function PracticeCard() {
   return (
     <View style={styles.card}>
       <View style={styles.content}>
         <View style={styles.iconContainer}>
-          <Text style={styles.icon}>📚</Text>
+          <Image
+            source={{
+              uri: "https://static.vecteezy.com/system/resources/previews/022/996/345/non_2x/3d-space-rocket-render-with-transparent-background-free-png.png",
+            }}
+            width={44}
+            height={44}
+          />
         </View>
-        <Text style={styles.text}>
+        <Text style={styles.text} weight="semiBold">
           Start your streak in 3 mins with a quick practice session
         </Text>
       </View>
-      <TouchableOpacity style={styles.button}>
+      <TouchableOpacity style={styles.button} activeOpacity={0.7}>
         <Text weight="medium" style={styles.buttonText}>
-          Quick practice
+          Start practice
         </Text>
       </TouchableOpacity>
     </View>
@@ -24,13 +32,13 @@ export function PracticeCard() {
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: "#F8FFA366",
-    borderRadius: 16,
+    backgroundColor: secondaryColor + "44",
+    borderRadius: 28,
     padding: 16,
     marginHorizontal: 16,
-    marginVertical: 8,
     borderWidth: 2,
-    borderColor: "#E9F073",
+    borderBottomWidth: 6,
+    borderColor: secondaryColor + "77",
   },
   content: {
     flexDirection: "row",
@@ -49,7 +57,7 @@ const styles = StyleSheet.create({
     color: "#000",
   },
   button: {
-    backgroundColor: "#E9F073",
+    backgroundColor: secondaryColor,
     borderRadius: 25,
     padding: 16,
     alignItems: "center",

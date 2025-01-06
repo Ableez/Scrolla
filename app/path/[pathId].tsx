@@ -1,5 +1,4 @@
-import type { LearningPath, Level } from "@/_mock_/type";
-import React, { useCallback, useEffect, useMemo } from "react";
+import React, { useCallback, useMemo } from "react";
 import {
   Image,
   StyleSheet,
@@ -7,7 +6,7 @@ import {
   View,
   FlatList,
 } from "react-native";
-import { useLocalSearchParams, router, useNavigation } from "expo-router";
+import { useLocalSearchParams, router } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ChevronLeftIcon } from "lucide-react-native";
 import ErrorState from "@/components/error-state";
@@ -20,6 +19,7 @@ import {
 import Text from "@/components/text";
 import { usePathStore } from "@/hooks/usePathsStore";
 import CourseCard from "@/components/path-screen/course-card";
+import { FlashList } from "@shopify/flash-list";
 
 // Separate components to prevent unnecessary re-renders
 const HeaderImage = React.memo(
@@ -128,15 +128,36 @@ const LevelItem = React.memo(
         </View>
       </View>
 
-      <FlatList
+      <FlashList
         data={item.courses}
         keyExtractor={(course) => course.id}
-        renderItem={({ item: course }) => (
-          <CourseCard course={course} pathId={pathId} />
+        renderItem={({ index, item: course }) => (
+          <View>
+            <CourseCard course={course} pathId={pathId} />
+            {index !== 1 && index % 2 === 0 ? (
+              <View
+                style={{
+                  width: "100%",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  marginBottom: 8,
+                }}
+              >
+                <View
+                  style={{
+                    width: 4,
+                    height: 30,
+                    backgroundColor: "#eee",
+                    borderRadius: 100,
+                  }}
+                ></View>
+              </View>
+            ) : null}
+          </View>
         )}
         removeClippedSubviews={true}
-        maxToRenderPerBatch={4}
-        windowSize={5}
+        estimatedItemSize={50}
       />
     </View>
   )
@@ -169,7 +190,10 @@ const Header = React.memo(({ path }: { path: LearningPathWithRelations }) => {
           activeOpacity={0.65}
           style={[styles.actionButton, { backgroundColor: colors.mono }]}
         >
-          <Text style={[styles.actionButtonText, { color: colors.monoText }]}>
+          <Text
+            weight="medium"
+            style={[styles.actionButtonText, { color: "#fff" }]}
+          >
             {path.isEnrolled ? "Resume path" : "Start Learning"}
           </Text>
         </TouchableOpacity>
@@ -220,8 +244,6 @@ const CourseScreen = () => {
         style={{
           paddingHorizontal: 16,
           paddingVertical: 4,
-          borderBottomWidth: 1,
-          borderBottomColor: "#ddd",
         }}
       >
         <TouchableOpacity onPress={() => router.back()}>
@@ -302,7 +324,7 @@ const styles = StyleSheet.create({
     borderRadius: 100,
   },
   actionButtonText: {
-    fontSize: 16,
+    fontSize: 17,
     textAlign: "center",
   },
   levelContainer: {
