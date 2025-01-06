@@ -49,11 +49,23 @@ const MessageInput = memo(
 
     return (
       <View style={styles.container}>
-        <TouchableOpacity onPress={onAttachmentPress} style={styles.iconButton}>
-          <Plus size={24} color={"#555"} />
-        </TouchableOpacity>
+        <View
+          style={{
+            display: "flex",
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <TouchableOpacity
+            onPress={onAttachmentPress}
+            style={styles.iconButton}
+          >
+            <Plus size={24} color={"#555"} />
+          </TouchableOpacity>
+        </View>
 
-        <Drawer snapPoints={["100%"]}>
+        {/* <Drawer snapPoints={["100%"]}>
           <DrawerTrigger style={{ flex: 1 }}>
             <View
               style={{
@@ -175,43 +187,29 @@ const MessageInput = memo(
                   )}
                 />
               </ScrollView>
-              {/* 
-              <View
-                style={{
-                  display: "flex",
-                  flexDirection: "row",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  position: "fixed",
-                  marginHorizontal: 18,
-                  marginVertical: 10,
-                  height: 40,
-                  borderRadius: 36,
-                  paddingHorizontal: 10,
-                  backgroundColor: "#eeeeee88",
-                  paddingVertical: 14,
-                }}
-              >
-                <TouchableOpacity
-                  onPress={onSendPress}
-                  style={styles.iconButton}
-                >
-                  <Plus size={24} strokeWidth={2.5} color={"#333"} />
-                </TouchableOpacity>
-                <TouchableOpacity
-                  onPress={onSendPress}
-                  style={styles.iconButton}
-                >
-                  <AudioLines
-                    size={24}
-                    strokeWidth={2.5}
-                    color={primaryColor}
-                  />
-                </TouchableOpacity>
-              </View> */}
             </View>
           </DrawerContent>
-        </Drawer>
+        </Drawer> */}
+
+        <TextInput
+          placeholder="Ask anything..."
+          onChangeText={(t) => onChangeText(t)}
+          style={{
+            borderWidth: 1,
+            display: "flex",
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "flex-start",
+            borderColor: "transparent",
+            flex: 1,
+            height: "100%",
+            fontSize: 16,
+            fontWeight: "600",
+          }}
+          multiline
+          numberOfLines={6}
+          cursorColor={"#000"}
+        />
 
         <View style={styles.rightIcons}>
           <Drawer snapPoints={["35%"]}>
@@ -307,10 +305,11 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#eeeee66e",
+    backgroundColor: "#eeeeee88",
     paddingHorizontal: 8,
     borderRadius: 26,
     margin: 12,
+    gap: 2,
   },
   iconButton: {
     padding: 6,

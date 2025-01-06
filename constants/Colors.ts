@@ -42,7 +42,7 @@ const palette = {
     dark: "#FF453A",
   },
   systemGreen: {
-    light: "#eb0000",
+    light: "#8583F5",
     dark: "#7776E3",
   },
   primaryText: {
