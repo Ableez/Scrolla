@@ -9,12 +9,12 @@ export const useAuthStyles = () => {
         container: {
           flex: 1,
           paddingHorizontal: 24,
-          backgroundColor: "#fff",
         },
         header: {
           fontSize: 32,
           marginBottom: 32,
-          marginTop: 12,
+          marginTop: 20,
+          textAlign: "center",
         },
         form: {
           gap: 16,
@@ -24,7 +24,7 @@ export const useAuthStyles = () => {
           fontSize: 16,
           borderWidth: 1,
           borderColor: "#e2e8f0",
-          borderRadius: 12,
+          borderRadius: 20,
           backgroundColor: "#f8fafc",
         },
         inputError: {
@@ -37,7 +37,7 @@ export const useAuthStyles = () => {
           marginTop: 8,
         },
         buttonDisabled: {
-          backgroundColor: "#94a3b8",
+          backgroundColor: "#999",
         },
         buttonText: {
           fontSize: 16,
@@ -61,8 +61,7 @@ export const useAuthStyles = () => {
         },
         codeInput: {
           letterSpacing: 24,
-          fontSize: 24,
-          textAlign: "center",
+          fontSize: 28,
           padding: 16,
         },
         resendButton: {

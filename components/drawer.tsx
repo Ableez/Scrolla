@@ -45,19 +45,25 @@ type DrawerProps = {
   children: ReactNode;
   snapPoints?: string[] | number[];
   onChange?: (index: number) => void;
+  customBottomSheetRef?: React.RefObject<BottomSheetModal>;
 } & BottomSheetModalProps;
 
 const Drawer = ({
   children,
-  snapPoints = ["50%"],
+  snapPoints = ["30%"],
   onChange,
+  customBottomSheetRef,
   ...props
 }: DrawerProps) => {
   const bottomSheetRef = useRef<BottomSheetModal>(null);
   const { dismiss } = useBottomSheetModal();
 
   const present = useCallback(() => {
-    bottomSheetRef.current?.present();
+    if (customBottomSheetRef) {
+      customBottomSheetRef.current?.present();
+    } else {
+      bottomSheetRef.current?.present();
+    }
   }, []);
 
   const contextValue = useMemo(
@@ -98,7 +104,7 @@ const Drawer = ({
     <DrawerContext.Provider value={contextValue}>
       {triggerContent}
       <BottomSheetModal
-        ref={bottomSheetRef}
+        ref={customBottomSheetRef ?? bottomSheetRef}
         index={0}
         snapPoints={snapPoints}
         onChange={onChange}

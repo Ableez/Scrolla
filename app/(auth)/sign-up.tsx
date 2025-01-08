@@ -3,13 +3,13 @@ export type AuthError = {
   code: string;
 };
 
-import * as React from "react";
 import {
   TextInput,
   View,
   Pressable,
   ActivityIndicator,
   TouchableHighlight,
+  Dimensions,
 } from "react-native";
 import { useAuth, useSignUp } from "@clerk/clerk-expo";
 import { Link, Redirect, useRouter } from "expo-router";
@@ -18,6 +18,10 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import BouncyButton from "@/components/bouncy-button";
 import { z } from "zod";
 import { useAuthStyles } from "@/hooks/use-auth-styles";
+import Svg, { Path } from "react-native-svg";
+import { primaryColor } from "@/constants/Colors";
+import { ChevronLeft, Eye, EyeClosed } from "lucide-react-native";
+import { useEffect, useState } from "react";
 
 const SignUpSchema = z.object({
   email: z.string().email("Please enter a valid email"),
@@ -34,20 +38,21 @@ export default function SignUpScreen() {
   const router = useRouter();
   const { isSignedIn } = useAuth();
 
-  const [email, setEmail] = React.useState("");
-  const [password, setPassword] = React.useState("");
-  const [loading, setLoading] = React.useState(false);
-  const [error, setError] = React.useState<AuthError | null>(null);
-  const [validationErrors, setValidationErrors] = React.useState<
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<AuthError | null>(null);
+  const [validationErrors, setValidationErrors] = useState<
     Record<string, string>
   >({});
+  const [showpPass, setShowPass] = useState(false);
 
-  const [verificationStep, setVerificationStep] = React.useState(false);
-  const [code, setCode] = React.useState("");
-  const [codeError, setCodeError] = React.useState<string | null>(null);
-  const [resendCooldown, setResendCooldown] = React.useState(0);
+  const [verificationStep, setVerificationStep] = useState(false);
+  const [code, setCode] = useState("");
+  const [codeError, setCodeError] = useState<string | null>(null);
+  const [resendCooldown, setResendCooldown] = useState(0);
 
-  React.useEffect(() => {
+  useEffect(() => {
     let timer: NodeJS.Timeout;
     if (resendCooldown > 0) {
       timer = setInterval(() => setResendCooldown((prev) => prev - 1), 1000);
@@ -77,8 +82,6 @@ export default function SignUpScreen() {
   const onSignUpPress = async () => {
     if (!isLoaded || loading || !validateForm()) return;
 
-    console.log("CLICKED");
-
     setLoading(true);
     setError(null);
 
@@ -86,6 +89,7 @@ export default function SignUpScreen() {
       await signUp.create({
         emailAddress: email,
         password,
+        username: email.split("@")[0],
       });
 
       await signUp.prepareEmailAddressVerification({ strategy: "email_code" });
@@ -96,6 +100,7 @@ export default function SignUpScreen() {
         message: err.errors?.[0]?.message ?? "Something went wrong",
         code: err.errors?.[0]?.code ?? "unknown_error",
       });
+      console.error("SIGN UP ERROR: ", JSON.stringify(err, null, 2));
     } finally {
       setLoading(false);
     }
@@ -103,6 +108,7 @@ export default function SignUpScreen() {
 
   const onResendCode = async () => {
     if (!isLoaded || loading || resendCooldown > 0) return;
+    setCodeError(null);
 
     setLoading(true);
     try {
@@ -127,6 +133,8 @@ export default function SignUpScreen() {
         code,
       });
 
+      console.log("signUpAttempt", signUpAttempt);
+
       if (signUpAttempt.status === "complete") {
         await setActive({ session: signUpAttempt.createdSessionId });
         router.replace("/");
@@ -135,6 +143,10 @@ export default function SignUpScreen() {
       }
     } catch (err: any) {
       setCodeError(err.errors?.[0]?.message ?? "Invalid verification code");
+      console.log(err);
+      // if (err.errors?.[0]?.message === "Already verified".toLowerCase()) {
+      //   router.push("/sign-in");
+      // }
     } finally {
       setLoading(false);
     }
@@ -151,12 +163,19 @@ export default function SignUpScreen() {
   if (verificationStep) {
     return (
       <SafeAreaView style={styles.container}>
-        <Text weight="bold" style={styles.header}>
-          Verify your email
+        <View style={{ marginBottom: 24, paddingTop: 16 }}>
+          <BouncyButton onPress={() => router.back()}>
+            <ChevronLeft size={32} color={"#333"} />
+          </BouncyButton>
+        </View>
+        <Text weight="bold" style={{ fontSize: 36 }}>
+          6-digit code
         </Text>
 
         <View style={styles.form}>
-          <Text>We sent a verification code to {email}</Text>
+          <Text style={{ fontSize: 16, marginVertical: 6 }}>
+            Please enter the code we've sent to {email ?? "your email"}
+          </Text>
 
           <TextInput
             value={code}
@@ -210,8 +229,44 @@ export default function SignUpScreen() {
     return <Redirect href="/" />;
   }
 
+  if (loading) {
+    return (
+      <View
+        style={{
+          height: Dimensions.get("screen").height,
+          width: Dimensions.get("screen").width,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <ActivityIndicator size={"large"} color={"#000"} />
+      </View>
+    );
+  }
+
   return (
     <SafeAreaView style={styles.container}>
+      <View
+        style={{
+          marginTop: 32,
+          width: "auto",
+          marginInline: "auto",
+          padding: 16,
+        }}
+      >
+        <Svg
+          width={41.234 * 1.6 + "mm"}
+          height={43.868 * 1.6 + "mm"}
+          clipRule="evenodd"
+          fillRule="evenodd"
+          viewBox="0 0 128.34 136.54"
+          fill={primaryColor}
+        >
+          <Path d="m109.4 68.54-0.11-9.14-35.61 0.11v18.07l35.61 0.11 0.11-9.14zm-90.47 0 0.11-9.14 35.61 0.11v18.07l-35.61 0.11-0.11-9.14zm54.75-33.43v-27.54-0.17l-9.52 0.09-9.52-0.09v0.17 27.54c-9.91 0.72-17.76 1.82-25.06-3.17-9.48-6.49-7.19-19.57-7.11-31.94h-22.48c0.03 14.27 0.82 23.02 13.38 30.03l9.13 3.85c1.48 0.96 0.46-0.04 1.49 1.29l-23.94 0.19c-0.03 22.14-0.03 44.2 0 66.34l23.94 0.19c-1.03 1.33-0.01 0.33-1.49 1.29l-9.13 3.85c-12.4 6.93-13.32 15.54-13.37 29.5h22.48c-0.14-12.21-2.23-25.01 7.12-31.4 12.17-3.76 15.15-3.9 25.06-3.17v27.54 0.17l9.52-0.09 9.52 0.09v-0.17-27.54c9.91-0.72 12.89-0.59 25.06 3.17 9.34 6.39 7.26 19.2 7.12 31.4h22.48c-0.05-13.96-0.97-22.57-13.37-29.5l-9.13-3.85c-1.48-0.95-0.46 0.04-1.49-1.29l23.94-0.19c0.03-22.14 0.03-44.2 0-66.34l-23.94-0.19c1.03-1.33 0.01-0.33 1.49-1.29l9.13-3.85c12.56-7.01 13.34-15.76 13.38-30.03h-22.48c0.08 12.36 2.37 25.45-7.11 31.94-7.29 4.99-15.15 3.9-25.06 3.17h-0.01z" />
+        </Svg>
+      </View>
       <Text weight="bold" style={styles.header}>
         Create account
       </Text>
@@ -226,7 +281,7 @@ export default function SignUpScreen() {
             keyboardType="email-address"
             onChangeText={setEmail}
           />
-          {validationErrors.email && (
+          {!!validationErrors.email && (
             <Text style={styles.errorText}>{validationErrors.email}</Text>
           )}
         </View>
@@ -239,12 +294,30 @@ export default function SignUpScreen() {
               validationErrors.password && styles.inputError,
             ]}
             placeholder="Password"
-            secureTextEntry
+            secureTextEntry={showpPass}
             onChangeText={setPassword}
           />
-          {validationErrors.password && (
+          {!!validationErrors.password && (
             <Text style={styles.errorText}>{validationErrors.password}</Text>
           )}
+          <BouncyButton
+            style={{
+              position: "absolute",
+              width: 55,
+              height: "100%",
+              right: 0,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+            onPress={() => setShowPass((p) => !p)}
+          >
+            {showpPass ? (
+              <EyeClosed size={22} color={"#333"} />
+            ) : (
+              <Eye size={22} color={"#333"} />
+            )}
+          </BouncyButton>
         </View>
 
         {error && <Text style={styles.errorText}>{error.message}</Text>}

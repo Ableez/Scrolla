@@ -1,36 +1,25 @@
-import React, { useEffect } from "react";
+import React from "react";
 import {
   SafeAreaView,
   ScrollView,
   View,
   StyleSheet,
-  TouchableOpacity,
-  Dimensions,
   Image,
 } from "react-native";
 import { PracticeCard } from "@/components/home-screen/practice-card";
 import { LessonCard } from "@/components/home-screen/lesson-card";
 import Text from "@/components/text";
 import DaysRow from "@/components/home-screen/day-circle";
-import { Search } from "lucide-react-native";
 import { router } from "expo-router";
-import {
-  Drawer,
-  DrawerClose,
-  DrawerContent,
-  DrawerDescription,
-  DrawerFooter,
-  DrawerHeader,
-  DrawerTitle,
-  DrawerTrigger,
-} from "@/components/drawer";
+import { Drawer, DrawerContent, DrawerTrigger } from "@/components/drawer";
 import Svg, { Path } from "react-native-svg";
 import { FlashList } from "@shopify/flash-list";
 import BouncyButton from "@/components/bouncy-button";
-import { useUser } from "@clerk/clerk-expo";
+import { SignedIn, SignedOut, useUser } from "@clerk/clerk-expo";
+import ProfileButton from "@/components/home-screen/profile-button";
 
 export default function App() {
-  const { isLoaded, isSignedIn, user } = useUser();
+  const { user } = useUser();
 
   return (
     <SafeAreaView style={styles.container}>
@@ -42,39 +31,10 @@ export default function App() {
             justifyContent: "space-between",
             alignItems: "center",
             paddingVertical: 16,
+            paddingTop: 18,
           }}
         >
-          <BouncyButton
-            style={{ marginBottom: 16 }}
-            onPress={async () => router.push("/sign-up")}
-          >
-            <View
-              style={{
-                display: "flex",
-                flexDirection: "row",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: 8,
-                paddingLeft: 16,
-              }}
-            >
-              <Image
-                style={{ borderRadius: 100 }}
-                source={{ uri: user?.imageUrl }}
-                width={40}
-                height={40}
-              />
-              <Text
-                weight="bold"
-                style={{
-                  fontSize: 30,
-                  textTransform: "capitalize",
-                }}
-              >
-                {isSignedIn ? user.username : "For you"}
-              </Text>
-            </View>
-          </BouncyButton>
+          <ProfileButton />
 
           <Drawer>
             <DrawerTrigger
