@@ -15,7 +15,7 @@ import { expoDB } from "@/app/_layout";
 import { allLearningPaths, coursesData } from "@/storage/sqlite/schema";
 import { eq } from "drizzle-orm";
 
-const BASE_URL = "https://8aef-102-88-110-229.ngrok-free.app";
+const BASE_URL = "https://ea38-102-88-109-125.ngrok-free.app";
 
 type Period = "weekly" | "monthly" | "all_time";
 
