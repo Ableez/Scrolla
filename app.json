@@ -14,7 +14,7 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "backgroundColor": "#6254E3"
       },
       "package": "com.ableez.Morse"
     },
@@ -27,15 +27,15 @@
       [
         "expo-router",
         {
-          "origin": "https://ea38-102-88-109-125.ngrok-free.app/"
+          "origin": "https://1265-102-88-84-255.ngrok-free.app/"
         }
       ],
       [
         "expo-splash-screen",
         {
           "image": "./assets/images/splash-icon.png",
-          "imageWidth": 200,
-          "resizeMode": "contain",
+          "imageWidth": 100,
+          "resizeMode": "cover",
           "backgroundColor": "#ffffff"
         }
       ],
@@ -55,7 +55,14 @@
           }
         }
       ],
-      "expo-secure-store"
+      "expo-secure-store",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "The app needs access to your photos to let you choose a profile picture.",
+          "cameraPermission": "The app needs access to your camera to let you take a profile picture."
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": false

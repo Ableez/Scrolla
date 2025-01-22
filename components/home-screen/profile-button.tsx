@@ -3,7 +3,7 @@ import React, { useRef } from "react";
 import BouncyButton from "../bouncy-button";
 import { router } from "expo-router";
 import Text from "../text";
-import { SignedIn, useAuth, useUser } from "@clerk/clerk-expo";
+import { SignedIn, SignedOut, useAuth, useUser } from "@clerk/clerk-expo";
 import { Drawer, DrawerContent, DrawerTrigger, useDrawer } from "../drawer";
 import { primary_blue, primaryColor } from "@/constants/Colors";
 import Svg, { Path } from "react-native-svg";
@@ -34,19 +34,41 @@ const ProfileButton = () => {
               width={40}
               height={40}
             />
+            <Text
+              weight="bold"
+              style={{
+                fontSize: 28,
+                textTransform: "capitalize",
+                width: 150,
+              }}
+              numberOfLines={1}
+              ellipsizeMode="tail"
+            >
+              {user?.username}
+            </Text>
           </SignedIn>
-          <Text
-            weight="bold"
-            style={{
-              fontSize: 28,
-              textTransform: "capitalize",
-              width: 150,
-            }}
-            numberOfLines={1}
-            ellipsizeMode="tail"
-          >
-            {isLoaded && isSignedIn ? user?.username : "Sign In"}
-          </Text>
+
+          <SignedOut>
+            <BouncyButton style={styles.getPlusButton}>
+              <Svg
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#fff"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <Path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                <Path d="M6 5h12l3 5l-8.5 9.5a.7 .7 0 0 1 -1 0l-8.5 -9.5l3 -5" />
+                <Path d="M10 12l-2 -2.2l.6 -1" />
+              </Svg>
+              <Text weight={"medium"} style={styles.getPlusText}>
+                Get Plus
+              </Text>
+            </BouncyButton>
+          </SignedOut>
         </View>
       </DrawerTrigger>
       <DrawerContent>
@@ -160,19 +182,21 @@ const ProfileButton = () => {
               bottomSheetRef.current?.dismiss();
 
               if (isLoaded && isSignedIn) {
-                router.push("/leader-board");
+                router.push("/profile");
               } else {
                 router.push("/sign-in");
               }
             }}
           >
-            <Image
-              source={{
-                uri: "https://cdn.worldvectorlogo.com/logos/apple-14.svg",
-              }}
-              width={32}
-              height={32}
-            />
+            <SignedOut>
+              <Image
+                source={{
+                  uri: "https://cdn.worldvectorlogo.com/logos/apple-14.svg",
+                }}
+                width={32}
+                height={32}
+              />
+            </SignedOut>
             <Text weight="medium" style={{ color: "#666" }}>
               {isLoaded && isSignedIn ? "Settings" : "Continue with Apple"}
             </Text>
@@ -210,4 +234,23 @@ const ProfileButton = () => {
 
 export default ProfileButton;
 
-const styles = StyleSheet.create({});
+const styles = StyleSheet.create({
+  getPlusButton: {
+    backgroundColor: primary_blue[0],
+    borderWidth: 2,
+    borderBottomWidth: 6,
+    borderColor: primary_blue[1],
+    paddingHorizontal: 18,
+    paddingVertical: 6,
+    borderRadius: 100,
+    display: "flex",
+    flexDirection: "row",
+    gap: 4,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  getPlusText: {
+    color: "#fff",
+    fontSize: 16,
+  },
+});

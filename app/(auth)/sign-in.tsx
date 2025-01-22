@@ -16,7 +16,7 @@ import { AuthError } from "./sign-up";
 import { useAuthStyles } from "@/hooks/use-auth-styles";
 import Svg, { Path } from "react-native-svg";
 import { primaryColor } from "@/constants/Colors";
-import { Eye, EyeClosed } from "lucide-react-native";
+import { ChevronLeft, Eye, EyeClosed } from "lucide-react-native";
 
 export default function SignInScreen() {
   const styles = useAuthStyles();
@@ -92,6 +92,12 @@ export default function SignInScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
+      <View style={{ marginBottom: 24, paddingTop: 16 }}>
+        <BouncyButton onPress={() => router.back()}>
+          <ChevronLeft size={32} color={"#333"} />
+        </BouncyButton>
+      </View>
+
       <View
         style={{
           marginTop: 32,

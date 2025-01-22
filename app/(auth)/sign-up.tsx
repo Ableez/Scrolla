@@ -179,6 +179,7 @@ export default function SignUpScreen() {
 
           <TextInput
             value={code}
+            cursorColor={"#000"}
             placeholder="000000"
             style={[
               styles.input,
@@ -274,6 +275,7 @@ export default function SignUpScreen() {
       <View style={styles.form}>
         <View>
           <TextInput
+            cursorColor={"#000"}
             autoCapitalize="none"
             style={[styles.input, validationErrors.email && styles.inputError]}
             value={email}
@@ -289,6 +291,7 @@ export default function SignUpScreen() {
         <View>
           <TextInput
             value={password}
+            cursorColor={"#000"}
             style={[
               styles.input,
               validationErrors.password && styles.inputError,

@@ -50,7 +50,7 @@ type DrawerProps = {
 
 const Drawer = ({
   children,
-  snapPoints = ["30%"],
+  snapPoints = ["38%"],
   onChange,
   customBottomSheetRef,
   ...props

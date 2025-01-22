@@ -1,12 +1,22 @@
 import React from "react";
-import { View, Image, StyleSheet, ScrollView } from "react-native";
+import {
+  View,
+  Image,
+  StyleSheet,
+  ScrollView,
+  ActivityIndicator,
+} from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Svg, { Path } from "react-native-svg";
-import { primary_orange } from "@/constants/Colors";
+import { primary_orange, primaryColor } from "@/constants/Colors";
 import BouncyButton from "@/components/bouncy-button";
 import { ChevronRight } from "lucide-react-native";
 import Text from "@/components/text";
+import { useUser } from "@clerk/clerk-expo";
+import { Redirect, router } from "expo-router";
+import CircleProgress from "@/components/swipe-screen/circle-progress";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const dummyUser = {
   username: "Jdoe1",
@@ -18,12 +28,33 @@ const dummyUser = {
   friendsCount: 2,
 };
 
+const PROGRESS_COMPLETE_KEY = AsyncStorage.getItem("progress_complete");
+
 const UserProfileScreen: React.FC = () => {
+  const { user, isLoaded, isSignedIn } = useUser();
+
+  if (!isLoaded) {
+    return <ActivityIndicator size={"large"} color={"#000"} />;
+  }
+
+  if (!isSignedIn) {
+    return <Redirect href={"/sign-in"} />;
+  }
+
+  const progress =
+    [
+      user.lastName,
+      user.firstName,
+      user.username,
+      user.imageUrl ?? null,
+      user.emailAddresses[0].emailAddress ?? null,
+    ].filter((item) => item !== null).length / 5;
+
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView>
         <View style={styles.header}>
-          <BouncyButton>
+          <BouncyButton onPress={() => router.back()}>
             <Feather name="chevron-left" size={24} color="black" />
           </BouncyButton>
           <View style={styles.coinBalance}>
@@ -45,42 +76,54 @@ const UserProfileScreen: React.FC = () => {
 
         <View style={styles.profileSection}>
           <View style={styles.avatarContainer}>
-            <Image
-              source={{ uri: "https://github.com/shadcn.png" }}
-              style={styles.avatar}
-            />
-            <View style={styles.progressRing}>
-              <Text style={styles.progressText}>
-                {dummyUser.profileCompletion}%
-              </Text>
-            </View>
+            <Image source={{ uri: user.imageUrl }} style={styles.avatar} />
           </View>
           <View style={styles.profileInfo}>
-            <Text style={styles.username}>{dummyUser.username}</Text>
-            <Text style={styles.handle}>{dummyUser.handle}</Text>
+            <Text style={styles.username}>{user.username}</Text>
+            <Text style={styles.handle}>
+              {user.emailAddresses[0].emailAddress}
+            </Text>
           </View>
         </View>
 
-        <BouncyButton style={styles.completeProfile}>
-          <Feather name="edit-2" size={20} color="black" />
-          <Text style={styles.completeProfileText}>Complete your profile</Text>
-          <Text style={styles.seeMore}>See more</Text>
-        </BouncyButton>
+        {String(PROGRESS_COMPLETE_KEY) === "true" ? null : (
+          <BouncyButton style={styles.completeProfile}>
+            <CircleProgress progress={progress} size={25} strokeWidth={5} />
+            <Text style={{ flex: 1, paddingHorizontal: 16 }} weight="medium">
+              Complete your profile
+            </Text>
+            <BouncyButton onPress={() => router.push("/personal-information")}>
+              <Text variant="caption" weight="medium">
+                Complete
+              </Text>
+            </BouncyButton>
+          </BouncyButton>
+        )}
 
-        <View
+        <BouncyButton
           style={{
             display: "flex",
             flexDirection: "row",
             alignItems: "center",
             justifyContent: "center",
+            borderWidth: 2,
+            borderColor: primary_orange[1] + "99",
+            backgroundColor: primary_orange[0] + "99",
+            borderBottomWidth: 6,
+            borderBottomColor: primary_orange[1] + "99",
+            marginInline: "auto",
+            width: "85%",
+            padding: 16,
+            margin: 16,
+            borderRadius: 24,
           }}
         >
           <Image
             source={{
               uri: "https://static.vecteezy.com/system/resources/previews/011/299/243/non_2x/gold-medal-championship-cup-3d-illustration-3d-rendering-png.png",
             }}
-            width={64}
-            height={64}
+            width={56}
+            height={56}
           />
           <View>
             <Text style={{ fontSize: 14 }}>You position</Text>
@@ -88,7 +131,7 @@ const UserProfileScreen: React.FC = () => {
               Silver
             </Text>
           </View>
-        </View>
+        </BouncyButton>
 
         <View>
           <BouncyButton
@@ -101,6 +144,7 @@ const UserProfileScreen: React.FC = () => {
               gap: 14,
               paddingVertical: 16,
             }}
+            onPress={() => router.push("/personal-information")}
           >
             <Svg width="24" height="24" viewBox="0 0 24 24" fill="#555">
               <Path stroke="none" d="M0 0h24v24H0z" fill="none" />
@@ -125,6 +169,7 @@ const UserProfileScreen: React.FC = () => {
               gap: 14,
               paddingVertical: 16,
             }}
+            onPress={() => router.push("../morse-rewards")}
           >
             <Svg
               width="26"
@@ -173,6 +218,84 @@ const UserProfileScreen: React.FC = () => {
               style={{ position: "absolute", top: "75%", right: 20 }}
             />
           </BouncyButton>
+          <BouncyButton
+            style={{
+              display: "flex",
+              flexDirection: "row",
+              alignItems: "center",
+              justifyContent: "flex-start",
+              paddingHorizontal: 20,
+              gap: 14,
+              paddingVertical: 16,
+            }}
+          >
+            <Svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#555"
+              strokeWidth="2.3"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <Path stroke="none" d="M0 0h24v24H0z" fill="none" />
+              <Path d="M13 10l7.383 7.418c.823 .82 .823 2.148 0 2.967a2.11 2.11 0 0 1 -2.976 0l-7.407 -7.385" />
+              <Path d="M6 9l4 4" />
+              <Path d="M13 10l-4 -4" />
+              <Path d="M3 21h7" />
+              <Path d="M6.793 15.793l-3.586 -3.586a1 1 0 0 1 0 -1.414l2.293 -2.293l.5 .5l3 -3l-.5 -.5l2.293 -2.293a1 1 0 0 1 1.414 0l3.586 3.586a1 1 0 0 1 0 1.414l-2.293 2.293l-.5 -.5l-3 3l.5 .5l-2.293 2.293a1 1 0 0 1 -1.414 0z" />
+            </Svg>
+
+            <Text style={{ fontSize: 16 }}>Terms and policies</Text>
+
+            <ChevronRight
+              size={24}
+              color={"#999"}
+              style={{ position: "absolute", top: "75%", right: 20 }}
+            />
+          </BouncyButton>
+        </View>
+
+        <View style={{ marginBlock: 24 }}>
+          <BouncyButton
+            style={{
+              display: "flex",
+              flexDirection: "row",
+              alignItems: "center",
+              justifyContent: "center",
+              paddingHorizontal: 20,
+              gap: 14,
+              paddingVertical: 16,
+              backgroundColor: "#eb000009",
+              margin: 20,
+              borderRadius: 36,
+            }}
+          >
+            <Svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#eb0000"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <Path stroke="none" d="M0 0h24v24H0z" fill="none" />
+              <Path d="M14 8v-2a2 2 0 0 0 -2 -2h-7a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h7a2 2 0 0 0 2 -2v-2" />
+              <Path d="M9 12h12l-3 -3" />
+              <Path d="M18 15l3 -3" />
+            </Svg>
+
+            <Text weight="medium" style={{ fontSize: 16, color: "#eb0000" }}>
+              Sign out
+            </Text>
+          </BouncyButton>
+
+          <Text style={{ marginBlock: 32, fontSize: 16, textAlign: "center" }}>
+            Version: 1.0.0
+          </Text>
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -188,7 +311,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    padding: 16,
+    paddingHorizontal: 16,
   },
   coinBalance: {
     flexDirection: "row",
@@ -211,6 +334,10 @@ const styles = StyleSheet.create({
   },
   avatarContainer: {
     position: "relative",
+    borderWidth: 4,
+    borderColor: primaryColor,
+    borderRadius: 1000,
+    borderBottomWidth: 6,
   },
   avatar: {
     width: 100,

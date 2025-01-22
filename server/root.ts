@@ -15,11 +15,11 @@ import { expoDB } from "@/app/_layout";
 import { allLearningPaths, coursesData } from "@/storage/sqlite/schema";
 import { eq } from "drizzle-orm";
 
-const BASE_URL = "https://ea38-102-88-109-125.ngrok-free.app";
+const BASE_URL = "https://1265-102-88-84-255.ngrok-free.app";
 
 type Period = "weekly" | "monthly" | "all_time";
 
-const STALE_TIME = 1000 * 60 * 10000;
+const STALE_TIME = 1000 * 60 * 1000;
 
 interface LeaderboardParams {
   pathId?: string;
@@ -52,7 +52,15 @@ export const root = {
           `${BASE_URL}/api/trpc/learning.getAllPaths`
         );
 
-        if (!response.ok) throw new Error("Failed to fetch learning paths");
+        if (!response.ok) {
+          if (data[0]) {
+            console.log("FALLBACK TO CACHE");
+
+            return JSON.parse(data[0].data!);
+          } else {
+            throw new Error("Error fetching learning paths");
+          }
+        }
 
         const d = ((await response.json()) as unknown as any).result.data.json;
         expoDB.delete(allLearningPaths).all();

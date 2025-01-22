@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   TextInput,
   View,
@@ -7,16 +7,18 @@ import {
   TouchableHighlight,
   Dimensions,
 } from "react-native";
-import { useSignIn } from "@clerk/clerk-expo";
+import { useAuth, useSignIn, useUser } from "@clerk/clerk-expo";
 import { Link, useRouter } from "expo-router";
 import Text from "@/components/text";
 import { SafeAreaView } from "react-native-safe-area-context";
 import BouncyButton from "@/components/bouncy-button";
 import { useAuthStyles } from "@/hooks/use-auth-styles";
 import Svg, { Path } from "react-native-svg";
-import { primaryColor } from "@/constants/Colors";
+import { primary_blue, primaryColor } from "@/constants/Colors";
 import { ChevronLeft, Eye, EyeClosed } from "lucide-react-native";
 import { z } from "zod";
+import { Drawer, DrawerContent } from "@/components/drawer";
+import { BottomSheetModal } from "@gorhom/bottom-sheet";
 
 type ResetError = {
   message: string;
@@ -31,8 +33,11 @@ const PasswordSchema = z
 
 const ForgotPassword = () => {
   const styles = useAuthStyles();
-  const { signIn, isLoaded } = useSignIn();
+  const { signIn, isLoaded, setActive } = useSignIn();
   const router = useRouter();
+  const { isSignedIn, signOut } = useAuth();
+  const { user } = useUser();
+  const customBottomSheetRef = useRef<BottomSheetModal>(null);
 
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
@@ -59,15 +64,18 @@ const ForgotPassword = () => {
 
   const onRequestReset = async () => {
     if (!isLoaded || loading || !email) return;
+    signOut();
 
     setLoading(true);
     setError(null);
 
     try {
-      await signIn!.create({
+      const reset = await signIn.create({
         strategy: "reset_password_email_code",
         identifier: email,
       });
+
+      console.log("RESET: ", reset);
       setStep("code");
       setResendCooldown(60);
     } catch (err: any) {
@@ -75,6 +83,8 @@ const ForgotPassword = () => {
         message: err.errors?.[0]?.message ?? "Failed to send reset email",
         code: err.errors?.[0]?.code ?? "unknown_error",
       });
+
+      console.log("REQUEST RESET ERROR: ", JSON.stringify(err, null, 2));
     } finally {
       setLoading(false);
     }
@@ -132,10 +142,16 @@ const ForgotPassword = () => {
     setError(null);
 
     try {
-      await signIn!.resetPassword({
+      const resetAttempt = await signIn.resetPassword({
         password: newPassword,
       });
-      router.replace("/sign-in");
+
+      if (resetAttempt.status === "complete") {
+        await setActive({ session: resetAttempt.createdSessionId });
+
+        router.replace("/");
+      }
+      router.replace("/");
     } catch (err: any) {
       setError({
         message: err.errors?.[0]?.message ?? "Failed to reset password",
@@ -145,6 +161,12 @@ const ForgotPassword = () => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (isLoaded && isSignedIn) {
+      customBottomSheetRef.current?.present();
+    }
+  }, []);
 
   if (!isLoaded || loading) {
     return (
@@ -163,6 +185,53 @@ const ForgotPassword = () => {
     );
   }
 
+  console.log("SIGNED IN ALREADY", isSignedIn);
+
+  if (isSignedIn) {
+    console.log("SIGNED IN ALREADY");
+    return (
+      <Drawer customBottomSheetRef={customBottomSheetRef}>
+        <DrawerContent>
+          <View style={{ padding: 20 }}>
+            <Text style={{ textAlign: "center", fontSize: 24 }}>
+              You are currently signed in as{" "}
+              {user?.username ?? user?.emailAddresses[0].emailAddress}
+            </Text>
+          </View>
+          <View
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 6,
+              width: "100%",
+              padding: 20,
+              marginTop: 16,
+            }}
+          >
+            <BouncyButton
+              style={{
+                width: "100%",
+                padding: 16,
+                borderRadius: 24,
+                backgroundColor: primary_blue[0],
+                borderWidth: 2,
+                borderBottomWidth: 6,
+                borderBottomColor: primary_blue[1],
+              }}
+            >
+              <Text>Go back</Text>
+            </BouncyButton>
+            <BouncyButton
+              style={{ width: "100%", padding: 16, borderRadius: 24 }}
+            >
+              <Text style={{ color: "#eb0000" }}>Yes, sign out</Text>
+            </BouncyButton>
+          </View>
+        </DrawerContent>
+      </Drawer>
+    );
+  }
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={{ marginBottom: 24, paddingTop: 16 }}>
@@ -173,7 +242,7 @@ const ForgotPassword = () => {
 
       <View
         style={{
-          marginTop: 32,
+          marginTop: 28,
           width: "auto",
           marginInline: "auto",
           padding: 16,
@@ -320,7 +389,7 @@ const ForgotPassword = () => {
         )}
 
         <View style={styles.link}>
-          <Text style={{ fontSize: 18 }} weight="semiBold">
+          <Text style={{ fontSize: 16 }} weight="medium">
             Remember your password?
           </Text>
           <Link href="/sign-in" asChild>

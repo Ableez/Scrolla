@@ -23,6 +23,7 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import { ClerkProvider, ClerkLoaded } from "@clerk/clerk-expo";
 import { tokenCache } from "@/utils/cache";
+import { useDrizzleStudio } from "expo-drizzle-studio-plugin";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -65,9 +66,12 @@ export default function RootLayout() {
 
   const { success, error } = useMigrations(expoDB, migrations);
 
+  useDrizzleStudio(localDB);
+
   useEffect(() => {
     if (loaded) {
       SplashScreen.hideAsync();
+      SplashScreen.setOptions({ fade: true });
     }
   }, [loaded]);
 
@@ -171,6 +175,19 @@ export default function RootLayout() {
                           />
                           <Stack.Screen
                             name="(auth)/profile"
+                            options={{
+                              headerShown: false,
+                            }}
+                          />
+                          <Stack.Screen
+                            name="(auth)/personal-information"
+                            options={{
+                              headerShown: false,
+                            }}
+                          />
+
+                          <Stack.Screen
+                            name="morse-rewards"
                             options={{
                               headerShown: false,
                             }}
