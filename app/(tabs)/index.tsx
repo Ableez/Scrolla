@@ -31,7 +31,7 @@ export default function App() {
             justifyContent: "space-between",
             alignItems: "center",
             paddingVertical: 16,
-            paddingTop: 18,
+            paddingTop: 12,
           }}
         >
           <ProfileButton />

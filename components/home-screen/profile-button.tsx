@@ -49,7 +49,10 @@ const ProfileButton = () => {
           </SignedIn>
 
           <SignedOut>
-            <BouncyButton style={styles.getPlusButton}>
+            <BouncyButton
+              style={styles.getPlusButton}
+              onPress={() => router.push("/sign-in")}
+            >
               <Svg
                 width="24"
                 height="24"
@@ -61,11 +64,12 @@ const ProfileButton = () => {
                 strokeLinejoin="round"
               >
                 <Path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                <Path d="M6 5h12l3 5l-8.5 9.5a.7 .7 0 0 1 -1 0l-8.5 -9.5l3 -5" />
-                <Path d="M10 12l-2 -2.2l.6 -1" />
+                <Path d="M9 8v-2a2 2 0 0 1 2 -2h7a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-7a2 2 0 0 1 -2 -2v-2" />
+                <Path d="M3 12h13l-3 -3" />
+                <Path d="M13 15l3 -3" />
               </Svg>
               <Text weight={"medium"} style={styles.getPlusText}>
-                Get Plus
+                Sign In
               </Text>
             </BouncyButton>
           </SignedOut>
@@ -245,7 +249,7 @@ const styles = StyleSheet.create({
     borderRadius: 100,
     display: "flex",
     flexDirection: "row",
-    gap: 4,
+    gap: 6,
     alignItems: "center",
     justifyContent: "center",
   },

@@ -14,7 +14,7 @@ interface CouponsScreenProps {
   onApplyCoupon: (code: string) => void;
 }
 
-export const CouponsScreen: React.FC<CouponsScreenProps> = ({
+const CouponsScreen: React.FC<CouponsScreenProps> = ({
   cartDetails,
   offers,
   onBackPress,
@@ -52,3 +52,5 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
 });
+
+export default CouponsScreen;

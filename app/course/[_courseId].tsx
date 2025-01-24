@@ -6,6 +6,7 @@ import {
   Animated,
   ActivityIndicator,
   Dimensions,
+  Image,
 } from "react-native";
 import { ChevronLeft, Dumbbell, GraduationCap } from "lucide-react-native";
 import { primaryColor } from "@/constants/Colors";
@@ -30,6 +31,7 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "@/components/drawer";
+import { FALLBACK_IMAGE_URL } from "@/constants/Var";
 
 export default function MorseLesson() {
   const fadeAnim = new Animated.Value(0);
@@ -53,6 +55,8 @@ export default function MorseLesson() {
       setIsFetching(true);
       try {
         const course = await root.learning.getCourseById(String(courseId));
+
+        console.log("COURSE", JSON.stringify(course));
 
         setCourseData(course);
       } catch (error) {
@@ -229,7 +233,7 @@ export default function MorseLesson() {
         colors={["#fff", "#fff", "rgba(255, 255, 255, 0)"]}
         style={{
           zIndex: 11,
-          height: 100,
+          height: 80,
           position: "absolute",
           top: 105,
           left: 0,
@@ -238,76 +242,15 @@ export default function MorseLesson() {
       />
 
       {/* initial header */}
-      {/* <Animated.View
-        style={[
-          styles.content,
-          {
-            opacity: fadeAnim,
-            transform: [{ translateY: slideAnim }],
-          },
-        ]}
-      >
-        <View style={styles.titleContainer}>
-          <View
-            style={{
-              maxWidth: "75%",
-            }}
-          >
-            <Text
-              weight="semiBold"
-              style={[styles.label, { textTransform: "uppercase" }]}
-            >
-              {path?.title}
-            </Text>
-
-            <Text weight="semiBold" style={styles.title}>
-              {course?.title}
-            </Text>
-          </View>
-          <Image
-            source={{ uri: course?.imageUrl ?? FALLBACK_IMAGE_URL }}
-            width={72}
-            height={72}
-          />
-        </View>
-
-        <View style={{ marginBottom: 16, marginTop: 8 }}>
-          <View
-            style={{
-              backgroundColor: "#eee",
-              width: "100%",
-              height: 10,
-              borderRadius: 100,
-            }}
-          >
-            <View
-              style={{
-                backgroundColor: primaryColor,
-                width: "10%",
-                height: 10,
-                borderRadius: 100,
-              }}
-            ></View>
-          </View>
-        </View>
-        <View style={styles.infoRow}>
-          <View style={styles.infoItem}>
-            <GraduationCap size={24} color="#333" />
-            <Text style={styles.infoText}>{course?.courseNumber} Levels</Text>
-          </View>
-          <View style={styles.infoItem}>
-            <Dumbbell size={20} color="#333" />
-            <Text style={styles.infoText}>8 exercises</Text>
-          </View>
-        </View>
-      </Animated.View> */}
+      <View style={{ height: 20 }} />
+      <Text>Hello im here</Text>
 
       {isFetching ? (
         <ActivityIndicator color={"#000"} size="large" />
       ) : (
         <View style={{ height: Dimensions.get("screen").height - 120 }}>
           <FlashList
-            data={courseData?.lessons}
+            data={[]}
             renderItem={({ item, index }) => (
               <LessonNode item={item} index={index} />
             )}

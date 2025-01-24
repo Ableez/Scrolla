@@ -7,7 +7,7 @@ import type {
   SwipeCardWithRelations,
 } from "./schema.types";
 
-const BASE_URL = "https://1265-102-88-84-255.ngrok-free.app";
+const BASE_URL = "https://52ea-102-89-22-117.ngrok-free.app";
 
 console.log("BASE", BASE_URL);
 

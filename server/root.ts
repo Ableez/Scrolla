@@ -15,7 +15,7 @@ import { expoDB } from "@/app/_layout";
 import { allLearningPaths, coursesData } from "@/storage/sqlite/schema";
 import { eq } from "drizzle-orm";
 
-const BASE_URL = "https://1265-102-88-84-255.ngrok-free.app";
+const BASE_URL = "https://52ea-102-89-22-117.ngrok-free.app";
 
 type Period = "weekly" | "monthly" | "all_time";
 
@@ -54,7 +54,7 @@ export const root = {
 
         if (!response.ok) {
           if (data[0]) {
-            console.log("FALLBACK TO CACHE");
+            console.log("[ERROR]: FALLBACK TO CACHE");
 
             return JSON.parse(data[0].data!);
           } else {

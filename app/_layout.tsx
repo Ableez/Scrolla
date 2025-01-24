@@ -1,7 +1,7 @@
 import {
   DarkTheme,
   DefaultTheme,
-  ThemeProvider as NavigationThemeProvider,
+  ThemeProvider as NativeThemeProvider,
 } from "@react-navigation/native";
 import { useFonts } from "expo-font";
 import { Stack } from "expo-router";
@@ -14,7 +14,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { CardSlideProvider } from "@/contexts/SlideStoreProvider";
 import { drizzle, ExpoSQLiteDatabase } from "drizzle-orm/expo-sqlite";
-import { openDatabaseSync, SQLiteDatabase, SQLiteProvider } from "expo-sqlite";
+import { openDatabaseSync, SQLiteProvider } from "expo-sqlite";
 import { migrate, useMigrations } from "drizzle-orm/expo-sqlite/migrator";
 import migrations from "../storage/drizzle/migrations";
 import { View, useColorScheme } from "react-native";
@@ -128,13 +128,11 @@ export default function RootLayout() {
               }}
               useSuspense
             >
-              <ThemeProvider>
-                <GestureHandlerRootView>
-                  <BottomSheetModalProvider>
-                    <NavigationThemeProvider
-                      value={theme === "dark" ? DarkTheme : DefaultTheme}
-                    >
-                      <CardSlideProvider>
+              <GestureHandlerRootView>
+                <BottomSheetModalProvider>
+                  <ThemeProvider>
+                    <CardSlideProvider>
+                      <NativeThemeProvider value={DefaultTheme}>
                         <Stack>
                           <Stack.Screen
                             name="(tabs)"
@@ -195,14 +193,12 @@ export default function RootLayout() {
 
                           <Stack.Screen name="+not-found" />
                         </Stack>
-                        <StatusBar
-                          style={theme === "dark" ? "light" : "dark"}
-                        />
-                      </CardSlideProvider>
-                    </NavigationThemeProvider>
-                  </BottomSheetModalProvider>
-                </GestureHandlerRootView>
-              </ThemeProvider>
+                      </NativeThemeProvider>
+                      <StatusBar style={theme === "dark" ? "light" : "dark"} />
+                    </CardSlideProvider>
+                  </ThemeProvider>
+                </BottomSheetModalProvider>
+              </GestureHandlerRootView>
             </SQLiteProvider>
           </Suspense>
         </QueryClientProvider>

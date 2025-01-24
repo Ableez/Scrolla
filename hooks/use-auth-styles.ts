@@ -1,6 +1,7 @@
 // hooks/useAuthStyles.ts
 import { StyleSheet } from "react-native";
 import { useMemo } from "react";
+import { primary_blue, primaryColor } from "@/constants/Colors";
 
 export const useAuthStyles = () => {
   return useMemo(
@@ -32,12 +33,16 @@ export const useAuthStyles = () => {
         },
         button: {
           padding: 16,
-          backgroundColor: "#000",
-          borderRadius: 12,
+          backgroundColor: primary_blue[0],
+          borderWidth: 2,
+          borderBottomWidth: 6,
+          borderColor: primary_blue[1],
+          borderRadius: 36,
           marginTop: 8,
         },
         buttonDisabled: {
-          backgroundColor: "#999",
+          backgroundColor: "#ccc",
+          borderColor: "#bbb",
         },
         buttonText: {
           fontSize: 16,
