@@ -12,8 +12,8 @@ export type SyncState = {
   pendingTasks: SyncTask[];
 };
 
-import { expoDB } from "@/app/_layout";
-import { root } from "@/server/root";
+import { expoDB } from "#/app/_layout";
+import { root } from "#/server/root";
 // controllers/SyncController.ts
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import NetInfo from "@react-native-community/netinfo";
@@ -27,7 +27,7 @@ import { transformAndInsertPath } from "../transformer";
 import {
   CourseWithRelations,
   LessonWithRelations,
-} from "@/server/schema.types";
+} from "#/server/schema.types";
 
 export class SyncController {
   private syncState: SyncState = {

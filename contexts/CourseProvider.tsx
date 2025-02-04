@@ -2,7 +2,7 @@ import {
   createCoursesStore,
   CoursesStoreType,
   initCoursesStore,
-} from "@/store/courses-store";
+} from "#/store/courses-store";
 import { createContext, useContext, useRef, type ReactNode } from "react";
 import { useStore } from "zustand";
 

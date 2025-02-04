@@ -611,7 +611,7 @@ const prealgebraPracticeFindingUnknownsCards: CardContentType[] = [
         ],
       },
     ],
-  }
+  },
 ];
 const generateUID = (): string => {
   //This is a placeholder, for a production environment use a proper UUID library

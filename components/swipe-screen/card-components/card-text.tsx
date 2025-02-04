@@ -1,6 +1,6 @@
-import { TextType } from "@/_mock_/swipe-data";
+import { TextType } from "#/_mock_/swipe-data";
 import { baseStyles } from "../base-styles";
-import Text from "@/components/text";
+import Text from "#/components/text";
 
 // Text component with variants
 export const ContentText = ({

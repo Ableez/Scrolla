@@ -1,7 +1,13 @@
 import React from "react";
-import { Text as NativeText, TextStyle, StyleSheet } from "react-native";
+import {
+  Text as NativeText,
+  TextStyle,
+  StyleSheet,
+  useColorScheme,
+} from "react-native";
 import { useFonts } from "expo-font";
 import { TextVariant, FontWeight, FontStyle, TextStyles } from "../types/text";
+import useTheme from "#/hooks/useTheme";
 
 interface TextProps extends React.ComponentProps<typeof NativeText> {
   variant?: TextVariant;
@@ -40,7 +46,7 @@ export const Text: React.FC<TextProps> = ({
   variant = "body1",
   weight = "regular",
   italic = false,
-  color = "#000000",
+  color = "#000",
   style,
   ...props
 }) => {
@@ -65,12 +71,14 @@ export const Text: React.FC<TextProps> = ({
     return null; // or a loading placeholder
   }
 
+  const colorScheme = useColorScheme();
+
   const fontFamily = createFontStyle(weight, italic);
 
   const textStyle: TextStyle = {
     ...textStyles[variant],
     fontFamily,
-    color,
+    color: colorScheme === "dark" ? "#fff" : color,
   };
 
   return (

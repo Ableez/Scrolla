@@ -1,28 +1,25 @@
 import React from "react";
-import {
-  SafeAreaView,
-  ScrollView,
-  View,
-  StyleSheet,
-  Image,
-} from "react-native";
-import { PracticeCard } from "@/components/home-screen/practice-card";
-import { LessonCard } from "@/components/home-screen/lesson-card";
-import Text from "@/components/text";
-import DaysRow from "@/components/home-screen/day-circle";
-import { router } from "expo-router";
-import { Drawer, DrawerContent, DrawerTrigger } from "@/components/drawer";
+import { SafeAreaView, ScrollView, View, StyleSheet } from "react-native";
+import { PracticeCard } from "#/components/home-screen/practice-card";
+import { LessonCard } from "#/components/home-screen/lesson-card";
+import Text from "#/components/text";
+import DaysRow from "#/components/home-screen/day-circle";
+import { Drawer, DrawerContent, DrawerTrigger } from "#/components/drawer";
 import Svg, { Path } from "react-native-svg";
 import { FlashList } from "@shopify/flash-list";
-import BouncyButton from "@/components/bouncy-button";
-import { SignedIn, SignedOut, useUser } from "@clerk/clerk-expo";
-import ProfileButton from "@/components/home-screen/profile-button";
+import ProfileButton from "#/components/home-screen/profile-button";
+import useTheme from "#/hooks/useTheme";
 
 export default function App() {
-  const { user } = useUser();
+  const { theme } = useTheme();
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView
+      style={{
+        ...styles.container,
+        backgroundColor: theme === "dark" ? "#000" : "#fff",
+      }}
+    >
       <ScrollView>
         <View
           style={{
@@ -96,7 +93,6 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#FFF",
     paddingTop: 32,
   },
   header: {
@@ -108,7 +104,6 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 36,
-    color: "#000",
     padding: 16,
   },
   streakContainer: {
@@ -116,7 +111,6 @@ const styles = StyleSheet.create({
   },
   streakText: {
     fontSize: 16,
-    color: "#333",
     marginLeft: 16,
     marginBottom: 12,
   },
@@ -126,7 +120,6 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 20,
-    color: "#000",
     marginBottom: 10,
     paddingHorizontal: 24,
   },

@@ -1,4 +1,4 @@
-import { localDB } from "@/app/_layout";
+import { localDB } from "#/app/_layout";
 
 export const userProgressQueries = localDB.prepareAsync(
   `INSERT INTO user_progress (userId, totalPoints, currentStreak, lastActivityAt, rank, weeklyPoints, monthlyPoints) VALUES (?, ?, ?, ?, ?, ?, ?)`

@@ -9,13 +9,13 @@ import {
 import { Feather } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Svg, { Path } from "react-native-svg";
-import { primary_orange, primaryColor } from "@/constants/Colors";
-import BouncyButton from "@/components/bouncy-button";
+import { primary_orange, primaryColor } from "#/constants/Colors";
+import BouncyButton from "#/components/bouncy-button";
 import { ChevronRight } from "lucide-react-native";
-import Text from "@/components/text";
+import Text from "#/components/text";
 import { useUser } from "@clerk/clerk-expo";
 import { Redirect, router } from "expo-router";
-import CircleProgress from "@/components/swipe-screen/circle-progress";
+import CircleProgress from "#/components/swipe-screen/circle-progress";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const dummyUser = {

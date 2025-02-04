@@ -1,7 +1,7 @@
 import { View } from "react-native";
 import React from "react";
-import useTheme from "@/hooks/useTheme";
-import { userStreakData } from "@/_mock_/user/streak-data";
+import useTheme from "#/hooks/useTheme";
+import { userStreakData } from "#/_mock_/user/streak-data";
 import Text from "./text";
 
 const UserStreak = () => {

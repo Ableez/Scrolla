@@ -1,13 +1,13 @@
 import {
   ColorSchemeSelect,
   LearningPathWithRelations,
-} from "@/server/schema.types";
+} from "#/server/schema.types";
 import { memo } from "react";
 import { Image, TouchableOpacity } from "react-native";
 import { View } from "react-native";
 import Text from "../text";
-import { usePathscreenStyles } from "@/hooks/use-pathscreen-styles";
-import useTheme from "@/hooks/useTheme";
+import { usePathscreenStyles } from "#/hooks/use-pathscreen-styles";
+import useTheme from "#/hooks/useTheme";
 
 const HeaderImage = memo(
   ({

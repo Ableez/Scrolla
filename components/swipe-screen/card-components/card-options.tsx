@@ -1,5 +1,5 @@
-import Text from "@/components/text";
-import { useCardSlideState } from "@/contexts/SlideStoreProvider";
+import Text from "#/components/text";
+import { useCardSlideState } from "#/contexts/SlideStoreProvider";
 import { useEffect, useState } from "react";
 import { Image } from "react-native";
 import { View } from "react-native";
@@ -95,7 +95,7 @@ export const Options = ({
     setCurrentCardIndex,
     isAnswered: checkIsAnswered,
   } = useCardSlideState((s) => s);
-  
+
   const isAnswered = checkIsAnswered(element.id);
 
   const handleSelect = (index: number) => {

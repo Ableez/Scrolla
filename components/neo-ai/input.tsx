@@ -19,7 +19,7 @@ import {
   AlignCenter,
   ArrowUpRightIcon,
 } from "lucide-react-native";
-import { primary_blue, primaryColor } from "@/constants/Colors";
+import { primary_blue, primaryColor } from "#/constants/Colors";
 import Text from "../text";
 import { Drawer, DrawerClose, DrawerContent, DrawerTrigger } from "../drawer";
 import { LinearGradient } from "expo-linear-gradient";

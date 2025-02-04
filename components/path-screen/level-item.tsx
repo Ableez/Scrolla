@@ -1,9 +1,9 @@
-import { LevelWithRelations } from "@/server/schema.types";
+import { LevelWithRelations } from "#/server/schema.types";
 import { View } from "react-native";
 import React, { memo } from "react";
 import Text from "../text";
 import LevelLessons from "./level-item-lessons";
-import { usePathscreenStyles } from "@/hooks/use-pathscreen-styles";
+import { usePathscreenStyles } from "#/hooks/use-pathscreen-styles";
 
 const LevelItem = memo(
   ({

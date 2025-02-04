@@ -21,17 +21,17 @@ import { LinearGradient } from "expo-linear-gradient";
 import { Search } from "lucide-react-native";
 import { router } from "expo-router";
 
-import useTheme from "@/hooks/useTheme";
-import { useLearningPaths } from "@/hooks/usePathsStore";
-import ErrorState from "@/components/error-state";
-import { FALLBACK_IMAGE_URL } from "@/constants/Var";
+import useTheme from "#/hooks/useTheme";
+import { useLearningPaths } from "#/hooks/usePathsStore";
+import ErrorState from "#/components/error-state";
+import { FALLBACK_IMAGE_URL } from "#/constants/Var";
 import {
   LearningPathWithRelations,
   CourseSelect,
   LevelWithRelations,
-} from "@/server/schema.types";
-import Text from "@/components/text";
-import BouncyButton from "@/components/bouncy-button";
+} from "#/server/schema.types";
+import Text from "#/components/text";
+import BouncyButton from "#/components/bouncy-button";
 
 interface EnhancedLearningPath
   extends Omit<LearningPathWithRelations, "levels"> {

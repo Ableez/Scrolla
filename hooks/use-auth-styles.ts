@@ -1,7 +1,7 @@
 // hooks/useAuthStyles.ts
 import { StyleSheet } from "react-native";
 import { useMemo } from "react";
-import { primary_blue, primaryColor } from "@/constants/Colors";
+import { primary_blue, primaryColor } from "#/constants/Colors";
 
 export const useAuthStyles = () => {
   return useMemo(

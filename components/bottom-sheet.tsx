@@ -11,7 +11,7 @@ import BouncyButton from "./bouncy-button";
 import { ContentType } from "./course-screen/lesson-node";
 import RectangleProgress from "./swipe-screen/rect-progress";
 import Svg, { Path } from "react-native-svg";
-import { primary_blue } from "@/constants/Colors";
+import { primary_blue } from "#/constants/Colors";
 
 const BottomSheet = ({
   bottomSheetRef,

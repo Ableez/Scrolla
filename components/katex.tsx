@@ -3,8 +3,8 @@ import { StyleSheet } from "react-native";
 import { WebView } from "react-native-webview";
 import { WebViewSharedProps } from "react-native-webview/lib/WebViewTypes";
 
-import katexStyle from "@/styles/katex-style.css";
-import katexScript from "@/scripts/katex-script";
+import katexStyle from "#/styles/katex-style.css";
+import katexScript from "#/scripts/katex-script";
 
 export interface KatexOptions {
   displayMode?: boolean;

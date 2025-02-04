@@ -3,14 +3,14 @@ import { FlatList, TouchableOpacity, View } from "react-native";
 import { useLocalSearchParams, router } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ChevronLeftIcon } from "lucide-react-native";
-import ErrorState from "@/components/error-state";
-import useTheme from "@/hooks/useTheme";
-import { LevelWithRelations } from "@/server/schema.types";
-import { usePathStore } from "@/hooks/usePathsStore";
+import ErrorState from "#/components/error-state";
+import useTheme from "#/hooks/useTheme";
+import { LevelWithRelations } from "#/server/schema.types";
+import { usePathStore } from "#/hooks/usePathsStore";
 import { FlashList } from "@shopify/flash-list";
-import { usePathscreenStyles } from "@/hooks/use-pathscreen-styles";
-import LevelItem from "@/components/path-screen/level-item";
-import Header from "@/components/path-screen/header";
+import { usePathscreenStyles } from "#/hooks/use-pathscreen-styles";
+import LevelItem from "#/components/path-screen/level-item";
+import Header from "#/components/path-screen/header";
 
 const CourseScreen = () => {
   const { pathId } = useLocalSearchParams();

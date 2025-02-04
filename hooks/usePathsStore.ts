@@ -1,16 +1,16 @@
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
 import { useEffect, useState } from "react";
-import { api } from "@/server/api";
-import { root } from "@/server/root";
+import { api } from "#/server/api";
+import { root } from "#/server/root";
 import type {
   LearningPathWithRelations,
   LevelWithRelations,
   CourseWithRelations,
-} from "@/server/schema.types";
-import { expoDB } from "@/app/_layout";
-import { allLearningPaths } from "@/storage/sqlite/schema";
-import { DB_queryAllPaths } from "@/storage/sqlite/statements";
+} from "#/server/schema.types";
+import { expoDB } from "#/app/_layout";
+import { allLearningPaths } from "#/storage/sqlite/schema";
+import { DB_queryAllPaths } from "#/storage/sqlite/statements";
 
 // State Types
 type DataState<T> = {

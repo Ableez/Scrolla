@@ -6,7 +6,7 @@ import {
   CourseSelect,
   LearningPathSelect,
   LevelSelect,
-} from "@/server/schema.types";
+} from "#/server/schema.types";
 
 const data = [
   {

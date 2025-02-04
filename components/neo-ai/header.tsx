@@ -1,6 +1,6 @@
 import React, { memo } from "react";
 import { View, StyleSheet } from "react-native";
-import { primary_blue } from "@/constants/Colors";
+import { primary_blue } from "#/constants/Colors";
 import Text from "../text";
 import Svg, { Path } from "react-native-svg";
 import BouncyButton from "../bouncy-button";

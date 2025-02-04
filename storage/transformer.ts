@@ -1,6 +1,6 @@
 // utils/transforms.ts
 
-import { LearningPathWithRelations } from "@/server/schema.types";
+import { LearningPathWithRelations } from "#/server/schema.types";
 
 export function transformAndInsertPath(
   pathWithRelations: LearningPathWithRelations[]

@@ -1,7 +1,7 @@
 import {
   DB_insertAllPaths,
   DB_queryAllPaths,
-} from "@/storage/sqlite/statements";
+} from "#/storage/sqlite/statements";
 import type {
   LearningPathWithRelations,
   CourseWithRelations,
@@ -10,9 +10,9 @@ import type {
   LeaderboardWithRelations,
   SwipeCardWithRelations,
 } from "./schema.types";
-import { generateUID } from "@/utils/generate-uuid";
-import { expoDB } from "@/app/_layout";
-import { allLearningPaths, coursesData } from "@/storage/sqlite/schema";
+import { generateUID } from "#/utils/generate-uuid";
+import { expoDB } from "#/app/_layout";
+import { allLearningPaths, coursesData } from "#/storage/sqlite/schema";
 import { eq } from "drizzle-orm";
 
 const BASE_URL = "https://52ea-102-89-22-117.ngrok-free.app";

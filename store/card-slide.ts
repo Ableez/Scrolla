@@ -1,4 +1,4 @@
-import { CardContentType } from "@/_mock_/swipe-data";
+import { CardContentType } from "#/_mock_/swipe-data";
 import { createStore } from "zustand";
 
 export type CardSlideState = {

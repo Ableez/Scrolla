@@ -1,13 +1,13 @@
 import React, { useState, useCallback } from "react";
 import { View, StyleSheet } from "react-native";
-import Header from "@/components/neo-ai/header";
-import useTheme from "@/hooks/useTheme";
-import MessageInput from "@/components/neo-ai/input";
+import Header from "#/components/neo-ai/header";
+import useTheme from "#/hooks/useTheme";
+import MessageInput from "#/components/neo-ai/input";
 import { SafeAreaView } from "react-native-safe-area-context";
-import Text from "@/components/text";
+import Text from "#/components/text";
 import InfiniteScrollFlashList from "../../components/neo-ai/infinite-scroll";
 import { FlashList } from "@shopify/flash-list";
-import ActionButton from "@/components/neo-ai/action-button";
+import ActionButton from "#/components/neo-ai/action-button";
 
 const actions = [
   {

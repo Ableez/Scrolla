@@ -1,4 +1,4 @@
-import { LevelWithRelations } from "@/server/schema.types";
+import { LevelWithRelations } from "#/server/schema.types";
 import { FlashList } from "@shopify/flash-list";
 import { memo } from "react";
 import { View } from "react-native";

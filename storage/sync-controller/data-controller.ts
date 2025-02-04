@@ -1,7 +1,7 @@
 // controllers/DataController.ts
 import { createStore } from "zustand";
 import { SyncController } from ".";
-import { expoDB, localDB } from "@/app/_layout";
+import { expoDB, localDB } from "#/app/_layout";
 import { eq } from "drizzle-orm";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { SQLiteTable } from "drizzle-orm/sqlite-core";

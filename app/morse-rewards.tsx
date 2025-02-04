@@ -1,9 +1,9 @@
-import { Footer } from "@/components/rewards/footer";
-import { Header } from "@/components/rewards/header";
-import { CouponInput } from "@/components/rewards/input";
-import { OfferCard } from "@/components/rewards/reward-card";
-import { CartDetails, Offer } from "@/components/rewards/types";
-import Text from "@/components/text";
+import { Footer } from "#/components/rewards/footer";
+import { Header } from "#/components/rewards/header";
+import { CouponInput } from "#/components/rewards/input";
+import { OfferCard } from "#/components/rewards/reward-card";
+import { CartDetails, Offer } from "#/components/rewards/types";
+import Text from "#/components/text";
 import React from "react";
 import { View, ScrollView, StyleSheet } from "react-native";
 

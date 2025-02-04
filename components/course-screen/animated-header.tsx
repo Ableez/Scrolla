@@ -1,13 +1,13 @@
 import React, { useRef } from "react";
 import { View, Animated, StyleSheet, Dimensions, Image } from "react-native";
 import { GraduationCap, Dumbbell } from "lucide-react-native";
-import Text from "@/components/text";
-import { FALLBACK_IMAGE_URL } from "@/constants/Var";
-import { primaryColor } from "@/constants/Colors";
+import Text from "#/components/text";
+import { FALLBACK_IMAGE_URL } from "#/constants/Var";
+import { primaryColor } from "#/constants/Colors";
 import {
   CourseWithRelations,
   LearningPathWithRelations,
-} from "@/server/schema.types";
+} from "#/server/schema.types";
 
 const HEADER_MAX_HEIGHT = 200;
 const HEADER_MIN_HEIGHT = 100;

@@ -1,4 +1,4 @@
-import { Action } from "@/components/neo-ai/infinite-scroll";
+import { Action } from "#/components/neo-ai/infinite-scroll";
 import React from "react";
 import { TouchableOpacity, Text, StyleSheet } from "react-native";
 import BouncyButton from "../bouncy-button";

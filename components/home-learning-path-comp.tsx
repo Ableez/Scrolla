@@ -2,7 +2,7 @@ import React from "react";
 import { View, FlatList, Text } from "react-native";
 import { LevelSection } from "./learning-path/level-section";
 import PathHeader from "./learning-path/path-header";
-import type { LearningPath, Level } from "@/_mock_/type";
+import type { LearningPath, Level } from "#/_mock_/type";
 
 interface LearningPathCompProps {
   learningPath: LearningPath;
@@ -47,8 +47,6 @@ const LearningPathComp: React.FC<LearningPathCompProps> = ({
           paddingBottom: 16,
         }}
       /> */}
-
-      
     </View>
   );
 };

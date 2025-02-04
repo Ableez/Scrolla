@@ -1,96 +1,113 @@
-import { Dimensions, StyleSheet, TouchableOpacity, View } from "react-native";
-import React, { useRef } from "react";
+import { StyleSheet, TouchableOpacity, View } from "react-native";
+import React, { useRef, useMemo, useCallback } from "react";
 import ConfettiCannon from "react-native-confetti-cannon";
 import CircleProgress from "./circle-progress";
 import Text from "../text";
 import { BookOpenTextIcon, ChevronLeft } from "lucide-react-native";
-import { CardContentType } from "@/_mock_/swipe-data";
-import Animated from "react-native-reanimated";
-import { useCardSlideState } from "@/contexts/SlideStoreProvider";
-
-const { width: SCREEN_WIDTH } = Dimensions.get("screen");
+import { CardContentType } from "#/_mock_/swipe-data";
+import { FlashList } from "@shopify/flash-list";
+import { useCardSlideState } from "#/contexts/SlideStoreProvider";
 
 interface BottomNavProps {
-  flatListRef: React.RefObject<Animated.FlatList<CardContentType>>;
+  flatListRef: React.RefObject<FlashList<CardContentType>>;
 }
 
-const BottomNav: React.FC<BottomNavProps> = ({ flatListRef }) => {
-  const {
-    cards,
-    currentCardIndex,
-    questionCards,
-    goToNextCard,
-    goToPreviousCard,
-    addAnsweredQuestion,
-  } = useCardSlideState((state) => state);
+const BottomNav: React.FC<BottomNavProps> = React.memo(({ flatListRef }) => {
   const confettiRef = useRef<ConfettiCannon>(null);
 
-  const isLastCard = currentCardIndex === cards.length - 1;
+  const cards = useCardSlideState((s) => s.cards);
+  const currentCardIndex = useCardSlideState((s) => s.currentCardIndex);
+  const questionCards = useCardSlideState((s) => s.questionCards);
+  const goToNextCard = useCardSlideState((s) => s.goToNextCard);
+  const goToPreviousCard = useCardSlideState((s) => s.goToPreviousCard);
+  const addAnsweredQuestion = useCardSlideState((s) => s.addAnsweredQuestion);
 
-  const currentCard = cards[currentCardIndex];
-  if (!currentCard) {
-    return null; // Or render a loading/error state
-  }
+  const isLastCard = useMemo(
+    () => currentCardIndex === cards.length - 1,
+    [currentCardIndex, cards.length]
+  );
 
-  const currentQuestionElement =
-    currentCard.type === "qa"
-      ? currentCard.elements.find((e) => e.type === "options")
+  const currentCard = useMemo(
+    () => cards[currentCardIndex],
+    [cards, currentCardIndex]
+  );
+
+  const { currentQuestionElement, currentQuestionState } = useMemo(() => {
+    if (!currentCard || currentCard.type !== "qa") return {};
+
+    const element = currentCard.elements.find((e) => e.type === "options");
+    const state = element
+      ? questionCards.find((qa) => qa.id === element.id)
       : null;
 
-  const currentQuestionState = currentQuestionElement
-    ? questionCards.find((qa) => qa.id === currentQuestionElement.id)
-    : null;
+    return { currentQuestionElement: element, currentQuestionState: state };
+  }, [currentCard, questionCards]);
 
-  // Calculate progress
-  const totalQuestions = cards.filter((card) => card.type === "qa").length;
-  const correctAnswers = questionCards.filter((qa) => qa.score === 1).length;
-  const progress = totalQuestions > 0 ? correctAnswers / totalQuestions : 0;
+  const { correctAnswers, progress } = useMemo(() => {
+    const total = cards.filter((card) => card.type === "qa").length;
+    const correct = questionCards.filter((qa) => qa.score === 1).length;
+    return {
+      totalQuestions: total,
+      correctAnswers: correct,
+      progress: total > 0 ? correct / total : 0,
+    };
+  }, [cards, questionCards]);
 
-  // Navigation state
   const canNavigateBack = currentCardIndex > 0;
-  const canCheck =
-    currentQuestionState?.selectedOption !== null &&
-    currentQuestionState?.selectedOption !== undefined &&
-    !currentQuestionState?.answerChecked;
-  const canContinue =
-    !currentQuestionState || currentQuestionState.answerChecked;
+  const canCheck = useMemo(
+    () =>
+      currentQuestionState?.selectedOption != null &&
+      !currentQuestionState?.answerChecked,
+    [currentQuestionState]
+  );
 
-  const handleNavigation = (direction: "next" | "prev") => {
-    if (!flatListRef.current) return;
-    confettiRef.current?.start();
-
-    if (direction === "next") {
-      if (canCheck && currentQuestionState) {
-        // Update the question state to mark it as checked
-        const correctAnswer =
-          currentQuestionElement?.type === "options"
-            ? currentQuestionElement.correctAnswer
-            : null;
-
-        addAnsweredQuestion({
-          ...currentQuestionState,
-          answerChecked: true,
-          score: currentQuestionState.selectedOption === correctAnswer ? 1 : 0,
-        });
+  const handleNavigation = useCallback(
+    (direction: "next" | "prev") => {
+      if (!flatListRef.current) {
+        console.error("Flatlist ref not found");
         return;
       }
-      const newIndex = currentCardIndex + 1;
-      flatListRef.current.scrollToOffset({
-        offset: newIndex * SCREEN_WIDTH,
-        animated: true,
-      });
-      goToNextCard();
-    } else {
-      const newIndex = currentCardIndex - 1;
-      flatListRef.current.scrollToOffset({
-        offset: newIndex * SCREEN_WIDTH,
-        animated: true,
-      });
-      goToPreviousCard();
-    }
-  };
 
-  const getButtonState = () => {
+      // confettiRef.current?.start();
+
+      if (direction === "next") {
+        console.log("NEXT, currentQuestionElement", currentQuestionElement);
+        if (
+          canCheck &&
+          currentQuestionState &&
+          currentQuestionElement?.type === "options"
+        ) {
+          addAnsweredQuestion({
+            ...currentQuestionState,
+            answerChecked: true,
+            score:
+              currentQuestionState.selectedOption ===
+              currentQuestionElement.correctAnswer
+                ? 1
+                : 0,
+          });
+          return;
+        }
+
+        const newIndex = Math.min(currentCardIndex + 1, cards.length - 1);
+        flatListRef.current.scrollToIndex({ index: newIndex, animated: true });
+        goToNextCard();
+      } else {
+        const newIndex = Math.max(currentCardIndex - 1, 0);
+        flatListRef.current.scrollToIndex({ index: newIndex, animated: true });
+        goToPreviousCard();
+      }
+    },
+    [
+      canCheck,
+      currentCardIndex,
+      cards.length,
+      currentQuestionState,
+      currentQuestionElement,
+    ]
+  );
+
+  const buttonState = useMemo(() => {
     if (!currentCard || currentCard.type !== "qa") {
       return {
         disabled: false,
@@ -99,7 +116,7 @@ const BottomNav: React.FC<BottomNavProps> = ({ flatListRef }) => {
       };
     }
 
-    if (!currentQuestionState || currentQuestionState.selectedOption === null) {
+    if (!currentQuestionState?.selectedOption) {
       return {
         disabled: true,
         text: "Continue",
@@ -107,22 +124,20 @@ const BottomNav: React.FC<BottomNavProps> = ({ flatListRef }) => {
       };
     }
 
-    if (!currentQuestionState.answerChecked) {
-      return {
-        disabled: false,
-        text: "Check",
-        style: styles.buttonActive,
-      };
-    }
+    return currentQuestionState.answerChecked
+      ? {
+          disabled: false,
+          text: isLastCard ? "Complete" : "Continue",
+          style: styles.buttonActive,
+        }
+      : {
+          disabled: false,
+          text: "Check",
+          style: styles.buttonActive,
+        };
+  }, [currentCard, isLastCard, currentQuestionState]);
 
-    return {
-      disabled: false,
-      text: isLastCard ? "Complete" : "Continue",
-      style: styles.buttonActive,
-    };
-  };
-
-  const buttonState = getButtonState();
+  if (!currentCard) return null;
 
   return (
     <View style={styles.container}>
@@ -133,16 +148,22 @@ const BottomNav: React.FC<BottomNavProps> = ({ flatListRef }) => {
         fadeOut
         ref={confettiRef}
       />
+
       <View style={styles.topSection}>
         <View style={styles.progressContainer}>
           <CircleProgress progress={progress} size={24} strokeWidth={4.8} />
           <Text weight="semiBold">{correctAnswers}</Text>
         </View>
-
         <TouchableOpacity style={styles.theoryButton}>
-          <BookOpenTextIcon size={14} color={styles.theoryText.color} />
+          <BookOpenTextIcon size={14} color="#bbb" />
           <Text weight="semiBold" style={styles.theoryText}>
             View theory
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.theoryButton}>
+          <BookOpenTextIcon size={14} color="#bbb" />
+          <Text weight="semiBold" style={styles.theoryText}>
+            Ask Neo
           </Text>
         </TouchableOpacity>
       </View>
@@ -153,14 +174,7 @@ const BottomNav: React.FC<BottomNavProps> = ({ flatListRef }) => {
           onPress={() => handleNavigation("prev")}
           disabled={!canNavigateBack}
         >
-          <ChevronLeft
-            size={24}
-            color={
-              canNavigateBack
-                ? styles.buttonActive.color
-                : styles.buttonDisabled.color
-            }
-          />
+          <ChevronLeft size={24} color={canNavigateBack ? "#000" : "#bbb"} />
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -181,7 +195,7 @@ const BottomNav: React.FC<BottomNavProps> = ({ flatListRef }) => {
       </View>
     </View>
   );
-};
+});
 
 const styles = StyleSheet.create({
   container: {

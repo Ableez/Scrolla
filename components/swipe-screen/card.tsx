@@ -1,6 +1,6 @@
 import React, { memo } from "react";
 import { View, StyleSheet, Dimensions, Animated } from "react-native";
-import Text from "@/components/text";
+import Text from "#/components/text";
 
 const { width } = Dimensions.get("window");
 const CARD_WIDTH = width - 64;

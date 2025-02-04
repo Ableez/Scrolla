@@ -7,11 +7,11 @@ import {
   StyleSheet,
   Image,
 } from "react-native";
-import useTheme from "@/hooks/useTheme";
+import useTheme from "#/hooks/useTheme";
 import { Badge } from "./badge";
 import { ThemedText } from "../ThemedText";
 import { router } from "expo-router";
-import type { Course } from "@/_mock_/type";
+import type { Course } from "#/_mock_/type";
 
 interface CourseCardProps {
   course: Course;

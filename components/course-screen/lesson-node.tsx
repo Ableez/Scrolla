@@ -1,8 +1,8 @@
 import { Animated, StyleSheet, TouchableOpacity, View } from "react-native";
 import React, { memo, useCallback, useRef, useState } from "react";
-import { LessonSelect } from "@/server/schema.types";
+import { LessonSelect } from "#/server/schema.types";
 import { BottomSheetModal } from "@gorhom/bottom-sheet";
-import { primary_blue, primary_green } from "@/constants/Colors";
+import { primary_blue, primary_green } from "#/constants/Colors";
 import Text from "../text";
 import Svg, { Path } from "react-native-svg";
 import {

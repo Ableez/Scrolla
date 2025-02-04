@@ -1,6 +1,6 @@
 import { beforeEach, expect, jest, test } from "@jest/globals";
 
-import { Storage } from "@/storage";
+import { Storage } from "#/storage";
 
 jest.mock("react-native-mmkv", () => ({
   MMKV: class MMKVMock {

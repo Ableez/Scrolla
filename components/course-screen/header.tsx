@@ -1,5 +1,5 @@
-import { primaryColor } from "@/constants/Colors";
-import useTheme from "@/hooks/useTheme";
+import { primaryColor } from "#/constants/Colors";
+import useTheme from "#/hooks/useTheme";
 import React from "react";
 import { View, Image, Text } from "react-native";
 

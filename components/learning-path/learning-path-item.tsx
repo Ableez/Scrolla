@@ -1,6 +1,6 @@
 import React from "react";
 import { View, Text, Image, TouchableOpacity, StyleSheet } from "react-native";
-import useTheme from "@/hooks/useTheme";
+import useTheme from "#/hooks/useTheme";
 
 interface LearningPathItemProps {
   item: {

@@ -9,13 +9,13 @@ import {
 } from "react-native";
 import { useAuth, useSignIn } from "@clerk/clerk-expo";
 import { Link, Redirect, useRouter } from "expo-router";
-import Text from "@/components/text";
+import Text from "#/components/text";
 import { SafeAreaView } from "react-native-safe-area-context";
-import BouncyButton from "@/components/bouncy-button";
+import BouncyButton from "#/components/bouncy-button";
 import { AuthError } from "./sign-up";
-import { useAuthStyles } from "@/hooks/use-auth-styles";
+import { useAuthStyles } from "#/hooks/use-auth-styles";
 import Svg, { Path } from "react-native-svg";
-import { primaryColor } from "@/constants/Colors";
+import { primaryColor } from "#/constants/Colors";
 import { ChevronLeft, Eye, EyeClosed } from "lucide-react-native";
 
 export default function SignInScreen() {

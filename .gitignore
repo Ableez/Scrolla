@@ -37,6 +37,8 @@ yarn-error.*
 
 app-example
 
+components/home-screen/formatted.json
+
 *.env*
 
 ./sorry.ts

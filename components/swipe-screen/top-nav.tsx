@@ -5,11 +5,11 @@ import { XIcon } from "lucide-react-native";
 import Text from "../text";
 import RectangleProgress from "./rect-progress";
 import { router } from "expo-router";
-import { useCardSlideState } from "@/contexts/SlideStoreProvider";
+import { useCardSlideState } from "#/contexts/SlideStoreProvider";
 
 const TopNav = () => {
   const progress = useCardSlideState((s) => s.progress);
-  
+
   return (
     <View
       style={{

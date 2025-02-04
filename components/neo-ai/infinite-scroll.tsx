@@ -1,7 +1,7 @@
 import React, { useRef, useEffect, useState } from "react";
 import { View, Animated, LayoutChangeEvent } from "react-native";
 import { FlashList } from "@shopify/flash-list";
-import ActionButton from "@/components/neo-ai/action-button";
+import ActionButton from "#/components/neo-ai/action-button";
 
 export interface Action {
   label: string;

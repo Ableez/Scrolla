@@ -15,12 +15,12 @@ import React, { useCallback, useState } from "react";
 import * as ImagePicker from "expo-image-picker";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
-import BouncyButton from "@/components/bouncy-button";
+import BouncyButton from "#/components/bouncy-button";
 import { XIcon, CheckIcon, CameraIcon } from "lucide-react-native";
 import Svg, { Path } from "react-native-svg";
 import { useUser } from "@clerk/clerk-expo";
-import { primary_blue, primaryColor } from "@/constants/Colors";
-import Text from "@/components/text";
+import { primary_blue, primaryColor } from "#/constants/Colors";
+import Text from "#/components/text";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 type FormData = {

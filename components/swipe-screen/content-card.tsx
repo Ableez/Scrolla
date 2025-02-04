@@ -1,17 +1,19 @@
-import React from "react";
-import { View } from "react-native";
+import React, { useCallback } from "react";
+import { Dimensions, StyleSheet, View } from "react-native";
 import CarouselContent from "./carousel";
 import ContentImage from "./content-image";
-import { CardContentType } from "@/_mock_/swipe-data";
+import { CardContentType } from "#/_mock_/swipe-data";
 import { ContentText } from "./card-components/card-text";
 import { baseStyles } from "./base-styles";
 import { Expression } from "./card-components/card-expression";
 import { Options } from "./card-components/card-options";
 
+const { width: SCREEN_WIDTH } = Dimensions.get("screen");
+
 export const CardContent = ({ content }: { content: CardContentType }) => {
-  return (
-    <View style={baseStyles.container}>
-      {content.elements.map((element, index) => {
+  const renderItems = useCallback(
+    () =>
+      content.elements.map((element, index) => {
         switch (element.type) {
           case "text":
             return (
@@ -41,12 +43,7 @@ export const CardContent = ({ content }: { content: CardContentType }) => {
               />
             );
           case "options":
-            return (
-              <Options
-                key={index}
-                element={element}
-              />
-            );
+            return <Options key={index} element={element} />;
           case "carousel":
             return (
               <CarouselContent
@@ -58,7 +55,41 @@ export const CardContent = ({ content }: { content: CardContentType }) => {
           default:
             return null;
         }
-      })}
+      }),
+    []
+  );
+
+  return (
+    <View style={styles.itemContainer}>
+      <View style={[styles.item]}>
+        <View style={baseStyles.container}>{renderItems()}</View>
+      </View>
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  itemContainer: {
+    width: SCREEN_WIDTH,
+    justifyContent: "center",
+    alignItems: "center",
+    height: "100%",
+  },
+  item: {
+    width: "90%",
+    height: "90%",
+    backgroundColor: "#fff",
+    borderRadius: 28,
+    overflow: "hidden",
+    borderWidth: 1,
+    borderColor: "#ddd",
+    shadowColor: "#00000033",
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 3.4,
+    elevation: 10,
+  },
+});

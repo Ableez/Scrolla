@@ -1,6 +1,6 @@
 import { Animated, Pressable, StyleSheet, Text, View } from "react-native";
 import React, { useRef, useEffect } from "react";
-import useTheme from "@/hooks/useTheme";
+import useTheme from "#/hooks/useTheme";
 import { Platform } from "react-native";
 
 const Button = ({

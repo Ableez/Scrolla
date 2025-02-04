@@ -1,70 +1,58 @@
-import { Dimensions, StyleSheet, View, type ViewToken } from "react-native";
-import React, { useCallback, useRef, useState } from "react";
-import Animated, {
-  useAnimatedScrollHandler,
-  useSharedValue,
-} from "react-native-reanimated";
-import { cardContent, CardContentType } from "@/_mock_/swipe-data";
-import SwipeItem from "./swipe-item";
-import { useCardSlideState } from "@/contexts/SlideStoreProvider";
+import React, { useCallback } from "react";
+import { View, ViewabilityConfig, ViewToken } from "react-native";
+import { useCardSlideState } from "#/contexts/SlideStoreProvider";
+import type { CardContentType } from "#/_mock_/swipe-data";
+import { FlashList } from "@shopify/flash-list";
+import { CardContent } from "./content-card";
 
-interface ViewableItemsChanged {
-  viewableItems: ViewToken[];
-  changed: ViewToken[];
-}
+const CardSlide = React.memo(
+  ({
+    flatListRef,
+  }: {
+    flatListRef: React.RefObject<FlashList<CardContentType>>;
+  }) => {
+    const cards = useCardSlideState((s) => s.cards);
+    const setCurrentCardIndex = useCardSlideState((s) => s.setCurrentCardIndex);
+    const setDisableSwipe = useCardSlideState((s) => s.setDisableSwipe);
 
-const CardSlide = ({
-  flatListRef,
-}: {
-  flatListRef: React.RefObject<Animated.FlatList<CardContentType>>;
-}) => {
-  const { cards, disableSwipe, setCurrentCardIndex, setDisableSwipe } =
-    useCardSlideState((s) => s);
+    const viewabilityConfig: ViewabilityConfig = {
+      itemVisiblePercentThreshold: 50,
+      minimumViewTime: 100,
+      waitForInteraction: true,
+    };
 
-  console.log("disableSwipe", disableSwipe);
+    const onViewableItemsChanged = useCallback(
+      ({ viewableItems }: { viewableItems: Array<ViewToken> }) => {
+        if (viewableItems.length > 0) {
+          const newIndex = viewableItems[0]?.index ?? 0;
+          setCurrentCardIndex(newIndex);
+          console.log("CURRENT CARD INDEX", newIndex);
 
-  const viewabilityConfig = useRef({
-    itemVisiblePercentThreshold: 50,
-  });
-
-  const onViewableItemsChanged = useRef<(info: ViewableItemsChanged) => void>(
-    ({ viewableItems }) => {
-      if (viewableItems.length > 0) {
-        const newIndex = viewableItems[0].index ?? 0;
-        setCurrentCardIndex(newIndex);
-
-        if (cards[newIndex].type === "qa") {
-          setDisableSwipe(true);
+          setDisableSwipe(cards[newIndex]?.type === "qa");
         }
-      }
-    }
-  );
+      },
+      [cards, setCurrentCardIndex, setDisableSwipe]
+    );
 
-  const scrollX = useSharedValue(0);
-  const scrollHandler = useAnimatedScrollHandler((event) => {
-    scrollX.value = event.contentOffset.x;
-  });
-
-  return (
-    <View style={{ height: "76%" }}>
-      <Animated.FlatList
-        data={cards}
-        ref={flatListRef}
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        pagingEnabled
-        onScroll={scrollHandler}
-        scrollEventThrottle={16}
-        keyExtractor={(item, index) => index.toString()}
-        renderItem={({ item, index }) => (
-          <SwipeItem index={index} item={item} scrollX={scrollX} />
-        )}
-        onViewableItemsChanged={onViewableItemsChanged.current}
-        viewabilityConfig={viewabilityConfig.current}
-        scrollEnabled={!disableSwipe}
-      />
-    </View>
-  );
-};
+    return (
+      <View style={{ height: "76%" }}>
+        <FlashList
+          data={cards}
+          ref={flatListRef}
+          horizontal
+          pagingEnabled
+          removeClippedSubviews
+          showsHorizontalScrollIndicator={false}
+          scrollEventThrottle={32}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => <CardContent content={item} />}
+          onViewableItemsChanged={onViewableItemsChanged}
+          viewabilityConfig={viewabilityConfig}
+          estimatedItemSize={332}
+        />
+      </View>
+    );
+  }
+);
 
 export default CardSlide;

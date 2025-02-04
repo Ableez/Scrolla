@@ -1,9 +1,19 @@
 import React from "react";
-import { View, Image, StyleSheet, Pressable, Dimensions } from "react-native";
+import {
+  View,
+  Image,
+  StyleSheet,
+  Pressable,
+  Dimensions,
+  useColorScheme,
+} from "react-native";
 import Text from "../text";
 import RectangleProgress from "../swipe-screen/rect-progress";
+import { router } from "expo-router";
 
 export function LessonCard() {
+  const colorScheme = useColorScheme();
+
   return (
     <View
       style={{
@@ -11,8 +21,15 @@ export function LessonCard() {
         paddingHorizontal: 24,
       }}
     >
-      <Pressable>
-        <View style={styles.card}>
+      <Pressable onPress={() => router.push("/swipe/new")}>
+        <View
+          style={[
+            styles.card,
+            {
+              borderColor: colorScheme === "dark" ? "#333" : "#E0E0E0",
+            },
+          ]}
+        >
           <View
             style={{
               width: "100%",
@@ -20,7 +37,7 @@ export function LessonCard() {
               position: "absolute",
               top: 0,
               left: 0,
-              backgroundColor: "#F5F8FF",
+              backgroundColor: colorScheme === "dark" ? "#222" : "#F5F8FF",
             }}
           >
             <Image
@@ -57,12 +74,10 @@ export function LessonCard() {
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: "#FFF",
     borderRadius: 28,
     marginVertical: 8,
     overflow: "hidden",
     borderWidth: 1,
-    borderColor: "#E0E0E0",
     borderBottomWidth: 6,
     position: "relative",
     height: 330,
@@ -76,11 +91,10 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 14,
-    color: "#666",
+    opacity: 0.5,
     marginBottom: 4,
   },
   title: {
     fontSize: 20,
-    color: "#000",
   },
 });

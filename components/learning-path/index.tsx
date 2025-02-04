@@ -1,7 +1,7 @@
 import React from "react";
 import { View } from "react-native";
-import useTheme from "@/hooks/useTheme";
-import { LearningPath } from "@/_mock_/learning-path-data";
+import useTheme from "#/hooks/useTheme";
+import { LearningPath } from "#/_mock_/learning-path-data";
 import { LearningPathHeader } from "./learning-path-header";
 import { LevelSection } from "./level-section";
 import { ThemedView } from "../ThemedView";

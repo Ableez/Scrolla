@@ -2,7 +2,7 @@ import React from "react";
 import { View, TouchableOpacity, StyleSheet } from "react-native";
 import Text from "../text";
 import { Image } from "react-native";
-import { secondaryColor } from "@/constants/Colors";
+import { secondaryColor } from "#/constants/Colors";
 
 export function PracticeCard() {
   return (

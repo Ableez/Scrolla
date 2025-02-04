@@ -9,15 +9,15 @@ import {
 } from "react-native";
 import { useAuth, useSignIn, useUser } from "@clerk/clerk-expo";
 import { Link, useRouter } from "expo-router";
-import Text from "@/components/text";
+import Text from "#/components/text";
 import { SafeAreaView } from "react-native-safe-area-context";
-import BouncyButton from "@/components/bouncy-button";
-import { useAuthStyles } from "@/hooks/use-auth-styles";
+import BouncyButton from "#/components/bouncy-button";
+import { useAuthStyles } from "#/hooks/use-auth-styles";
 import Svg, { Path } from "react-native-svg";
-import { primary_blue, primaryColor } from "@/constants/Colors";
+import { primary_blue, primaryColor } from "#/constants/Colors";
 import { ChevronLeft, Eye, EyeClosed } from "lucide-react-native";
 import { z } from "zod";
-import { Drawer, DrawerContent } from "@/components/drawer";
+import { Drawer, DrawerContent } from "#/components/drawer";
 import { BottomSheetModal } from "@gorhom/bottom-sheet";
 
 type ResetError = {

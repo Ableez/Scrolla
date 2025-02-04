@@ -1,31 +1,23 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, memo, useRef } from "react";
 import { StyleSheet, View, ActivityIndicator } from "react-native";
 import { useNavigation } from "expo-router";
-import BottomNav from "@/components/swipe-screen/bottom-nav";
-import TopNav from "@/components/swipe-screen/top-nav";
-import CardSlide from "@/components/swipe-screen/cards-slide";
-import { cardContent, CardContentType } from "@/_mock_/swipe-data";
-import Animated from "react-native-reanimated";
-import Text from "@/components/text";
-import { type CardSlideState } from "@/store/card-slide";
-import { useCardSlideState } from "@/contexts/SlideStoreProvider";
+import BottomNav from "#/components/swipe-screen/bottom-nav";
+import TopNav from "#/components/swipe-screen/top-nav";
+import CardSlide from "#/components/swipe-screen/cards-slide";
+import { cardContent, CardContentType } from "#/_mock_/swipe-data";
+import Text from "#/components/text";
+import { useCardSlideState } from "#/contexts/SlideStoreProvider";
+import { FlashList } from "@shopify/flash-list";
 
 const SwipeScreen: React.FC = () => {
-  // const [state, setState] = useState<CardSlideState>({
-  //   currentCardIndex: 0,
-  //   cards: [],
-  //   isComplete: false,
-  //   highestViewedIndex: 0,
-  //   progress: 0,
-  //   isLoading: true,
-  //   error: null,
-  //   disableSwipe: true,
-  // });
+  const isLoading = useCardSlideState((s) => s.isLoading);
+  const error = useCardSlideState((s) => s.error);
+  const setCards = useCardSlideState((s) => s.setCards);
+  const setIsLoading = useCardSlideState((s) => s.setIsLoading);
+  const setError = useCardSlideState((s) => s.setError);
 
-  const state = useCardSlideState((s) => s);
-
-  const flatListRef = React.useRef<Animated.FlatList<CardContentType>>(null);
   const navigation = useNavigation();
+  const flatListRef = useRef<FlashList<CardContentType>>(null);
 
   useEffect(() => {
     navigation.setOptions({ headerShown: false });
@@ -33,43 +25,21 @@ const SwipeScreen: React.FC = () => {
 
   useEffect(() => {
     const loadCards = async () => {
-      state.setIsLoading(true);
-
+      setIsLoading(true);
       try {
         const data = await fetchCardData();
-        state.setCards(data);
-      } catch (error) {
-        state.setError("Failed to load cards");
+        setCards(data);
+      } catch (err) {
+        setError("Failed to load cards");
       } finally {
-        state.setIsLoading(false);
+        setIsLoading(false);
       }
     };
 
     loadCards();
-  }, []);
+  }, [setCards, setIsLoading, setError, fetchCardData]);
 
-  const handleCardChange = (newIndex: number) => {
-    const newProgress = (newIndex + 1) / state.cards.length;
-    const newHighestIndex = Math.max(state.highestViewedIndex, newIndex);
-    const isComplete = newIndex === state.cards.length - 1;
-
-    const answered = state.questionCards.find(
-      (qa) => qa.id === state.cards[newIndex].id
-    );
-
-    const disableSwipe =
-      state.cards[newIndex].type === "qa" && answered === undefined;
-
-    state.updateState({
-      currentCardIndex: newIndex,
-      progress: newProgress,
-      highestViewedIndex: newHighestIndex,
-      isComplete,
-      disableSwipe,
-    });
-  };
-
-  if (state.isLoading) {
+  if (isLoading) {
     return (
       <View style={styles.centerContainer}>
         <ActivityIndicator size="large" />
@@ -77,10 +47,10 @@ const SwipeScreen: React.FC = () => {
     );
   }
 
-  if (state.error) {
+  if (error) {
     return (
       <View style={styles.centerContainer}>
-        <Text style={styles.errorText}>{state.error}</Text>
+        <Text style={styles.errorText}>{error}</Text>
       </View>
     );
   }
@@ -92,6 +62,17 @@ const SwipeScreen: React.FC = () => {
       <BottomNav flatListRef={flatListRef} />
     </View>
   );
+};
+
+const fetchCardData = async () => {
+  try {
+    // Simulated API call
+    // await new Promise((resolve) => setTimeout(resolve, 100));
+
+    return cardContent;
+  } catch (error) {
+    throw new Error("Failed to fetch card data");
+  }
 };
 
 const styles = StyleSheet.create({
@@ -110,20 +91,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default SwipeScreen;
-
-// Utility function for fetching card data
-async function fetchCardData(): Promise<CardContentType[]> {
-  try {
-    // In a real app, this would be an API call
-    // const response = await fetch('/api/cards');
-    // const data = await response.json();
-    // return data;
-
-    // For now, simulate API delay
-    await new Promise((resolve) => setTimeout(resolve, 100));
-    return cardContent;
-  } catch (error) {
-    throw new Error("Failed to fetch card data");
-  }
-}
+export default memo(SwipeScreen);

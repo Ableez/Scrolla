@@ -1,5 +1,4 @@
 import {
-  DarkTheme,
   DefaultTheme,
   ThemeProvider as NativeThemeProvider,
 } from "@react-navigation/native";
@@ -9,20 +8,20 @@ import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
 import { Suspense, useEffect, useState } from "react";
 import "react-native-reanimated";
-import { THEME_STORAGE_KEY, ThemeProvider } from "@/contexts/ThemeContext";
+import { THEME_STORAGE_KEY, ThemeProvider } from "#/contexts/ThemeContext";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { CardSlideProvider } from "@/contexts/SlideStoreProvider";
+import { CardSlideProvider } from "#/contexts/SlideStoreProvider";
 import { drizzle, ExpoSQLiteDatabase } from "drizzle-orm/expo-sqlite";
 import { openDatabaseSync, SQLiteProvider } from "expo-sqlite";
 import { migrate, useMigrations } from "drizzle-orm/expo-sqlite/migrator";
 import migrations from "../storage/drizzle/migrations";
 import { View, useColorScheme } from "react-native";
-import Text from "@/components/text";
+import Text from "#/components/text";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import { ClerkProvider, ClerkLoaded } from "@clerk/clerk-expo";
-import { tokenCache } from "@/utils/cache";
+import { tokenCache } from "#/utils/cache";
 import { useDrizzleStudio } from "expo-drizzle-studio-plugin";
 
 SplashScreen.preventAutoHideAsync();

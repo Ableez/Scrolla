@@ -1,7 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import { ThemedView } from "../ThemedView";
 import { View, Image, TouchableOpacity } from "react-native";
-import useTheme from "@/hooks/useTheme";
+import useTheme from "#/hooks/useTheme";
 import { ThemedText } from "../ThemedText";
 import Text from "../text";
 

@@ -2,7 +2,7 @@ import React from "react";
 import { View, Dimensions, Text } from "react-native";
 import { CourseCard } from "./course-card";
 import { ThemedText } from "../ThemedText";
-import type { Course, Level } from "@/_mock_/type";
+import type { Course, Level } from "#/_mock_/type";
 
 interface LevelSectionProps {
   levelNumber: number;

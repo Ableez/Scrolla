@@ -1,8 +1,8 @@
 import React from "react";
 import { View, Dimensions, Text, Button, TouchableOpacity } from "react-native";
-import { Course } from "@/_mock_/type";
-import { courses } from "@/_mock_/courses";
-import useTheme from "@/hooks/useTheme";
+import { Course } from "#/_mock_/type";
+import { courses } from "#/_mock_/courses";
+import useTheme from "#/hooks/useTheme";
 import Animated, {
   useSharedValue,
   useAnimatedScrollHandler,

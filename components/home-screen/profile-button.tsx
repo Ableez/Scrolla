@@ -5,7 +5,7 @@ import { router } from "expo-router";
 import Text from "../text";
 import { SignedIn, SignedOut, useAuth, useUser } from "@clerk/clerk-expo";
 import { Drawer, DrawerContent, DrawerTrigger, useDrawer } from "../drawer";
-import { primary_blue, primaryColor } from "@/constants/Colors";
+import { primary_blue, primaryColor } from "#/constants/Colors";
 import Svg, { Path } from "react-native-svg";
 import { BottomSheetModal } from "@gorhom/bottom-sheet";
 

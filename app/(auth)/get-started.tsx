@@ -1,8 +1,8 @@
 import { Dimensions, Image, StyleSheet, View } from "react-native";
 import React from "react";
-import Text from "@/components/text";
+import Text from "#/components/text";
 import { SafeAreaView } from "react-native-safe-area-context";
-import BouncyButton from "@/components/bouncy-button";
+import BouncyButton from "#/components/bouncy-button";
 
 const GetStarted = () => {
   return (

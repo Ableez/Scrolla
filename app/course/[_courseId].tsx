@@ -9,15 +9,15 @@ import {
   Image,
 } from "react-native";
 import { ChevronLeft, Dumbbell, GraduationCap } from "lucide-react-native";
-import { primaryColor } from "@/constants/Colors";
+import { primaryColor } from "#/constants/Colors";
 import { router, useLocalSearchParams, useNavigation } from "expo-router";
-import { usePathStore } from "@/hooks/usePathsStore";
-import ErrorState from "@/components/error-state";
-import Text from "@/components/text";
-import { CourseWithRelations } from "@/server/schema.types";
-import { root } from "@/server/root";
+import { usePathStore } from "#/hooks/usePathsStore";
+import ErrorState from "#/components/error-state";
+import Text from "#/components/text";
+import { CourseWithRelations } from "#/server/schema.types";
+import { root } from "#/server/root";
 import { FlashList } from "@shopify/flash-list";
-import LessonNode from "@/components/course-screen/lesson-node";
+import LessonNode from "#/components/course-screen/lesson-node";
 import Svg, { Path } from "react-native-svg";
 import { LinearGradient } from "expo-linear-gradient";
 import { BottomSheetModal } from "@gorhom/bottom-sheet";
@@ -30,8 +30,8 @@ import {
   DrawerHeader,
   DrawerTitle,
   DrawerTrigger,
-} from "@/components/drawer";
-import { FALLBACK_IMAGE_URL } from "@/constants/Var";
+} from "#/components/drawer";
+import { FALLBACK_IMAGE_URL } from "#/constants/Var";
 
 export default function MorseLesson() {
   const fadeAnim = new Animated.Value(0);

@@ -1,4 +1,4 @@
-import { CardContentType } from "@/_mock_/swipe-data";
+import { CardContentType } from "#/_mock_/swipe-data";
 import { createStore } from "zustand";
 
 export type CoursesState = {
@@ -58,7 +58,9 @@ const CoursesState: CoursesState = {
 
 export type CoursesStoreType = CoursesState & CoursesActions;
 
-export const createCoursesStore = (initialState: CoursesState = CoursesState) => {
+export const createCoursesStore = (
+  initialState: CoursesState = CoursesState
+) => {
   return createStore<CoursesStoreType>((set, get) => ({
     ...initialState,
     goToNextCard: () => {
