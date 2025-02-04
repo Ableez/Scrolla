@@ -1,5 +1,5 @@
 import React, { useCallback } from "react";
-import { Dimensions, StyleSheet, View } from "react-native";
+import { Dimensions, StyleSheet, View, Animated } from "react-native";
 import CarouselContent from "./carousel";
 import ContentImage from "./content-image";
 import { CardContentType } from "#/_mock_/swipe-data";
@@ -10,63 +10,67 @@ import { Options } from "./card-components/card-options";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("screen");
 
-export const CardContent = ({ content }: { content: CardContentType }) => {
-  const renderItems = useCallback(
-    () =>
-      content.elements.map((element, index) => {
-        switch (element.type) {
-          case "text":
-            return (
-              <ContentText
-                key={index}
-                variant={element.variant}
-                content={element.content}
-                bottomSpace={element.bottomSpace}
-                topSpace={element.topSpace}
-              />
-            );
-          case "image":
-            return (
-              <ContentImage
-                customHeight={element.height}
-                customWidth={element.width}
-                key={index}
-                uri={element.uri}
-              />
-            );
-          case "expression":
-            return (
-              <Expression
-                displayMode={element.displayMode}
-                key={index}
-                latex={element.latex}
-              />
-            );
-          case "options":
-            return <Options key={index} element={element} />;
-          case "carousel":
-            return (
-              <CarouselContent
-                key={index}
-                images={element.images}
-                showDots={element.showDots}
-              />
-            );
-          default:
-            return null;
-        }
-      }),
-    []
-  );
+export const CardContent = React.memo(
+  ({ content }: { content: CardContentType }) => {
+    const renderItems = useCallback(
+      () =>
+        content.elements.map((element, index) => {
+          const key = `${content.id}-${index}`;
 
-  return (
-    <View style={styles.itemContainer}>
-      <View style={[styles.item]}>
-        <View style={baseStyles.container}>{renderItems()}</View>
+          switch (element.type) {
+            case "text":
+              return (
+                <ContentText
+                  key={key}
+                  variant={element.variant}
+                  content={element.content}
+                  bottomSpace={element.bottomSpace}
+                  topSpace={element.topSpace}
+                />
+              );
+            case "image":
+              return (
+                <ContentImage
+                  customHeight={element.height}
+                  customWidth={element.width}
+                  key={key}
+                  uri={element.uri}
+                />
+              );
+            case "expression":
+              return (
+                <Expression
+                  displayMode={element.displayMode}
+                  key={key}
+                  latex={element.latex}
+                />
+              );
+            case "options":
+              return <Options key={key} element={element} />;
+            case "carousel":
+              return (
+                <CarouselContent
+                  key={key}
+                  images={element.images}
+                  showDots={element.showDots}
+                />
+              );
+            default:
+              return null;
+          }
+        }),
+      [content.elements, content.id]
+    );
+
+    return (
+      <View style={styles.itemContainer}>
+        <Animated.View style={[styles.item]}>
+          <View style={baseStyles.container}>{renderItems()}</View>
+        </Animated.View>
       </View>
-    </View>
-  );
-};
+    );
+  }
+);
 
 const styles = StyleSheet.create({
   itemContainer: {

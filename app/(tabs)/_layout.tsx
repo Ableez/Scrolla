@@ -2,7 +2,6 @@ import { Tabs } from "expo-router";
 import React from "react";
 import { Easing, Platform } from "react-native";
 import { Stars } from "lucide-react-native";
-import useTheme from "#/hooks/useTheme";
 import HomeIcon from "#/assets/icons/home-outline";
 import CourseIcon from "#/assets/icons/course-icon";
 import { primaryColor } from "#/constants/Colors";

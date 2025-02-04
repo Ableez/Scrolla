@@ -1,7 +1,6 @@
 import { StyleSheet, TouchableOpacity, View } from "react-native";
 import React, { useRef, useMemo, useCallback } from "react";
 import ConfettiCannon from "react-native-confetti-cannon";
-import CircleProgress from "./circle-progress";
 import Text from "../text";
 import { BookOpenTextIcon, ChevronLeft } from "lucide-react-native";
 import { CardContentType } from "#/_mock_/swipe-data";
@@ -13,183 +12,166 @@ interface BottomNavProps {
 }
 
 const BottomNav: React.FC<BottomNavProps> = React.memo(({ flatListRef }) => {
+  // Refs
   const confettiRef = useRef<ConfettiCannon>(null);
 
-  const cards = useCardSlideState((s) => s.cards);
-  const currentCardIndex = useCardSlideState((s) => s.currentCardIndex);
-  const questionCards = useCardSlideState((s) => s.questionCards);
-  const goToNextCard = useCardSlideState((s) => s.goToNextCard);
-  const goToPreviousCard = useCardSlideState((s) => s.goToPreviousCard);
-  const addAnsweredQuestion = useCardSlideState((s) => s.addAnsweredQuestion);
+  // State selectors
+  const {
+    cards,
+    currentCardIndex,
+    questionCards,
+    goToNextCard,
+    goToPreviousCard,
+    addAnsweredQuestion,
+  } = useCardSlideState((s) => ({
+    cards: s.cards,
+    currentCardIndex: s.currentCardIndex,
+    questionCards: s.questionCards,
+    goToNextCard: s.goToNextCard,
+    goToPreviousCard: s.goToPreviousCard,
+    addAnsweredQuestion: s.addAnsweredQuestion,
+  }));
 
-  const isLastCard = useMemo(
-    () => currentCardIndex === cards.length - 1,
-    [currentCardIndex, cards.length]
-  );
+  // Derived state
+  const isLastCard = currentCardIndex === cards.length - 1;
+  const currentCard = cards[currentCardIndex];
+  const canNavigateBack = currentCardIndex > 0;
 
-  const currentCard = useMemo(
-    () => cards[currentCardIndex],
-    [cards, currentCardIndex]
-  );
-
-  const { currentQuestionElement, currentQuestionState } = useMemo(() => {
+  // Current question details
+  const { currentQuestion, questionState } = useMemo(() => {
     if (!currentCard || currentCard.type !== "qa") return {};
 
-    const element = currentCard.elements.find((e) => e.type === "options");
-    const state = element
-      ? questionCards.find((qa) => qa.id === element.id)
-      : null;
+    const questionElement = currentCard.elements.find(
+      (e) => e.type === "options"
+    );
+    const state =
+      questionElement && questionCards.find((q) => q.id === questionElement.id);
 
-    return { currentQuestionElement: element, currentQuestionState: state };
+    return { currentQuestion: questionElement, questionState: state };
   }, [currentCard, questionCards]);
 
-  const { correctAnswers, progress } = useMemo(() => {
-    const total = cards.filter((card) => card.type === "qa").length;
-    const correct = questionCards.filter((qa) => qa.score === 1).length;
-    return {
-      totalQuestions: total,
-      correctAnswers: correct,
-      progress: total > 0 ? correct / total : 0,
-    };
-  }, [cards, questionCards]);
+  // // Progress calculations
+  // const { correctCount, progressValue } = useMemo(() => {
+  //   const totalQuestions = cards.filter((card) => card.type === "qa").length;
+  //   const correct = questionCards.filter((q) => q.score === 1).length;
+  //   return {
+  //     correctCount: correct,
+  //     progressValue: totalQuestions > 0 ? correct / totalQuestions : 0,
+  //   };
+  // }, [cards, questionCards]);
 
-  const canNavigateBack = currentCardIndex > 0;
-  const canCheck = useMemo(
-    () =>
-      currentQuestionState?.selectedOption != null &&
-      !currentQuestionState?.answerChecked,
-    [currentQuestionState]
-  );
+  // Navigation handlers
+  const handleNext = useCallback(() => {
+    if (!flatListRef.current) return;
 
-  const handleNavigation = useCallback(
-    (direction: "next" | "prev") => {
-      if (!flatListRef.current) {
-        console.error("Flatlist ref not found");
-        return;
-      }
+    // Handle question check first
+    if (questionState?.selectedOption != null && !questionState.answerChecked) {
+      const isCorrect =
+        currentQuestion?.type === "options" &&
+        questionState.selectedOption === currentQuestion.correctAnswer;
 
-      // confettiRef.current?.start();
+      addAnsweredQuestion({
+        ...questionState,
+        answerChecked: true,
+        score: isCorrect ? 1 : 0,
+      });
+      return;
+    }
 
-      if (direction === "next") {
-        console.log("NEXT, currentQuestionElement", currentQuestionElement);
-        if (
-          canCheck &&
-          currentQuestionState &&
-          currentQuestionElement?.type === "options"
-        ) {
-          addAnsweredQuestion({
-            ...currentQuestionState,
-            answerChecked: true,
-            score:
-              currentQuestionState.selectedOption ===
-              currentQuestionElement.correctAnswer
-                ? 1
-                : 0,
-          });
-          return;
-        }
+    // Regular next navigation
+    const nextIndex = Math.min(currentCardIndex + 1, cards.length - 1);
+    flatListRef.current.scrollToIndex({ index: nextIndex, animated: true });
+    goToNextCard();
+  }, [currentCardIndex, cards.length, questionState, currentQuestion]);
 
-        const newIndex = Math.min(currentCardIndex + 1, cards.length - 1);
-        flatListRef.current.scrollToIndex({ index: newIndex, animated: true });
-        goToNextCard();
-      } else {
-        const newIndex = Math.max(currentCardIndex - 1, 0);
-        flatListRef.current.scrollToIndex({ index: newIndex, animated: true });
-        goToPreviousCard();
-      }
-    },
-    [
-      canCheck,
-      currentCardIndex,
-      cards.length,
-      currentQuestionState,
-      currentQuestionElement,
-    ]
-  );
+  const handlePrev = useCallback(() => {
+    if (!flatListRef.current) return;
 
-  const buttonState = useMemo(() => {
+    const prevIndex = Math.max(currentCardIndex - 1, 0);
+    flatListRef.current.scrollToIndex({ index: prevIndex, animated: true });
+    goToPreviousCard();
+  }, [currentCardIndex]);
+
+  // Button state configuration
+  const buttonConfig = () => {
     if (!currentCard || currentCard.type !== "qa") {
       return {
-        disabled: false,
         text: isLastCard ? "Complete" : "Continue",
-        style: styles.buttonActive,
+        disabled: false,
       };
     }
 
-    if (!currentQuestionState?.selectedOption) {
+    if (!questionState?.selectedOption) {
       return {
-        disabled: true,
         text: "Continue",
-        style: styles.buttonDisabled,
+        disabled: true,
       };
     }
 
-    return currentQuestionState.answerChecked
-      ? {
-          disabled: false,
-          text: isLastCard ? "Complete" : "Continue",
-          style: styles.buttonActive,
-        }
-      : {
-          disabled: false,
-          text: "Check",
-          style: styles.buttonActive,
-        };
-  }, [currentCard, isLastCard, currentQuestionState]);
+    return questionState.answerChecked
+      ? { text: isLastCard ? "Complete" : "Continue", disabled: false }
+      : { text: "Check", disabled: false };
+  };
 
   if (!currentCard) return null;
 
   return (
     <View style={styles.container}>
       <ConfettiCannon
+        ref={confettiRef}
         count={150}
         origin={{ x: 0, y: 0 }}
         autoStart={false}
         fadeOut
-        ref={confettiRef}
       />
 
       <View style={styles.topSection}>
-        <View style={styles.progressContainer}>
-          <CircleProgress progress={progress} size={24} strokeWidth={4.8} />
-          <Text weight="semiBold">{correctAnswers}</Text>
+        {/* <View style={styles.progressContainer}>
+          <CircleProgress
+            progress={progressValue}
+            size={24}
+            strokeWidth={4.8}
+          />
+          <Text weight="semiBold">{correctCount}</Text>
+        </View> */}
+
+        <View style={styles.actionsContainer}>
+          <TheoryButton
+            icon={<BookOpenTextIcon size={14} color="#bbb" />}
+            text="View theory"
+          />
+          <TheoryButton
+            icon={<BookOpenTextIcon size={14} color="#bbb" />}
+            text="Ask Neo"
+          />
         </View>
-        <TouchableOpacity style={styles.theoryButton}>
-          <BookOpenTextIcon size={14} color="#bbb" />
-          <Text weight="semiBold" style={styles.theoryText}>
-            View theory
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.theoryButton}>
-          <BookOpenTextIcon size={14} color="#bbb" />
-          <Text weight="semiBold" style={styles.theoryText}>
-            Ask Neo
-          </Text>
-        </TouchableOpacity>
       </View>
 
       <View style={styles.navigationContainer}>
-        <TouchableOpacity
-          style={[styles.backButton, !canNavigateBack && styles.buttonDisabled]}
-          onPress={() => handleNavigation("prev")}
-          disabled={!canNavigateBack}
-        >
-          <ChevronLeft size={24} color={canNavigateBack ? "#000" : "#bbb"} />
-        </TouchableOpacity>
+        <NavButton
+          direction="prev"
+          enabled={canNavigateBack}
+          onPress={handlePrev}
+        />
 
         <TouchableOpacity
-          style={[styles.continueButton, buttonState.style]}
-          onPress={() => handleNavigation("next")}
-          disabled={buttonState.disabled}
+          style={[
+            styles.continueButton,
+            buttonConfig().disabled
+              ? styles.buttonDisabled
+              : styles.buttonActive,
+          ]}
+          onPress={handleNext}
+          disabled={buttonConfig().disabled}
         >
           <Text
             style={[
               styles.continueText,
-              buttonState.disabled ? styles.textDisabled : styles.textActive,
+              buttonConfig().disabled ? styles.textDisabled : styles.textActive,
             ]}
             weight="medium"
           >
-            {buttonState.text}
+            {buttonConfig().text}
           </Text>
         </TouchableOpacity>
       </View>
@@ -197,6 +179,46 @@ const BottomNav: React.FC<BottomNavProps> = React.memo(({ flatListRef }) => {
   );
 });
 
+const TheoryButton = ({
+  icon,
+  text,
+}: {
+  icon: React.ReactNode;
+  text: string;
+}) => (
+  <TouchableOpacity style={styles.theoryButton}>
+    {icon}
+    <Text weight="semiBold" style={styles.theoryText}>
+      {text}
+    </Text>
+  </TouchableOpacity>
+);
+
+const NavButton = ({
+  direction,
+  enabled,
+  onPress,
+}: {
+  direction: "prev" | "next";
+  enabled: boolean;
+  onPress: () => void;
+}) => (
+  <TouchableOpacity
+    style={[styles.backButton, !enabled && styles.buttonDisabled]}
+    onPress={onPress}
+    disabled={!enabled}
+  >
+    <ChevronLeft
+      size={24}
+      color={enabled ? "#000" : "#bbb"}
+      style={
+        direction === "next" ? { transform: [{ rotate: "180deg" }] } : undefined
+      }
+    />
+  </TouchableOpacity>
+);
+
+// Keep your existing styles
 const styles = StyleSheet.create({
   container: {
     backgroundColor: "#fff",
@@ -213,6 +235,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 8,
     padding: 8,
+  },
+  actionsContainer: {
+    flexDirection: "row",
+    gap: 16,
   },
   theoryButton: {
     flexDirection: "row",

@@ -34,6 +34,15 @@ const CardSlide = React.memo(
       [cards, setCurrentCardIndex, setDisableSwipe]
     );
 
+    const keyExtractor = useCallback((item: CardContentType) => item.id, []);
+
+    const renderItem = useCallback(
+      ({ item }: { item: CardContentType }) => <CardContent content={item} />,
+      []
+    );
+
+    const initialScrollIndex = 0;
+
     return (
       <View style={{ height: "76%" }}>
         <FlashList
@@ -41,14 +50,19 @@ const CardSlide = React.memo(
           ref={flatListRef}
           horizontal
           pagingEnabled
-          removeClippedSubviews
+          removeClippedSubviews={false}
           showsHorizontalScrollIndicator={false}
-          scrollEventThrottle={32}
-          keyExtractor={(item) => item.id}
-          renderItem={({ item }) => <CardContent content={item} />}
+          scrollEventThrottle={16}
+          keyExtractor={keyExtractor}
+          renderItem={renderItem}
           onViewableItemsChanged={onViewableItemsChanged}
           viewabilityConfig={viewabilityConfig}
           estimatedItemSize={332}
+          initialScrollIndex={initialScrollIndex}
+          maintainVisibleContentPosition={{
+            minIndexForVisible: 0,
+            autoscrollToTopThreshold: 10,
+          }}
         />
       </View>
     );

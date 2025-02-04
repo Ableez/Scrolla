@@ -58,7 +58,7 @@ const SwipeScreen: React.FC = () => {
   return (
     <View style={styles.container}>
       <TopNav />
-      <CardSlide flatListRef={flatListRef} />
+      {/* <CardSlide flatListRef={flatListRef} /> */}
       <BottomNav flatListRef={flatListRef} />
     </View>
   );
