@@ -1,42 +1,53 @@
+import { Expression } from "../components/swipe-screen/card-components/card-expression";
 // Types for content elements
 export type TextType = "h2" | "h4" | "body" | "caption";
+export type TextContent = {
+  id: string;
+  type: "text";
+  variant: TextType;
+  content: string;
+  bottomSpace?: number;
+  topSpace?: number;
+};
+
+export type ImageContent = {
+  id: string;
+  type: "image";
+  uri: string;
+  size?: "small" | "tall" | "large" | "full";
+  height?: number;
+  width?: number | "100%";
+};
+
+export type ExpressionContent = {
+  id: string;
+  type: "expression";
+  latex: string;
+  displayMode?: "inline" | "block";
+};
+
+export type OptionsContent = {
+  id: string;
+  type: "options";
+  choices: string[];
+  correctAnswer: number;
+  why?: ContentElement[];
+};
+
+export type CarouselContent = {
+  id: string;
+  type: "carousel";
+  images: string[];
+  arr: boolean;
+  showDots: boolean;
+};
+
 export type ContentElement =
-  | {
-      id: string;
-      type: "text";
-      variant: TextType;
-      content: string;
-      bottomSpace?: number;
-      topSpace?: number;
-    }
-  | {
-      id: string;
-      type: "image";
-      uri: string;
-      size?: "small" | "tall" | "large" | "full";
-      height?: number;
-      width?: number | "100%";
-    }
-  | {
-      id: string;
-      type: "expression";
-      latex: string;
-      displayMode?: "inline" | "block";
-    }
-  | {
-      id: string;
-      type: "options";
-      choices: string[];
-      correctAnswer: number;
-      why?: ContentElement[];
-    }
-  | {
-      id: string;
-      type: "carousel";
-      images: string[];
-      arr: boolean;
-      showDots: boolean;
-    };
+  | TextContent
+  | ImageContent
+  | ExpressionContent
+  | OptionsContent
+  | CarouselContent;
 
 export type CardContentType = {
   id: string;
@@ -165,7 +176,7 @@ export const cardContent: CardContentType[] = [
     ],
   },
   {
-    id: "math-for-fun",
+    id: "math-for-fun2",
     index: 4,
     type: "qa",
     elements: [
@@ -197,7 +208,7 @@ export const cardContent: CardContentType[] = [
     ],
   },
   {
-    id: "math-for-fun",
+    id: "math-for-fun3",
     index: 5,
     type: "qa",
     elements: [
@@ -229,7 +240,7 @@ export const cardContent: CardContentType[] = [
     ],
   },
   {
-    id: "math-for-fun",
+    id: "math-for-fun4",
     index: 6,
     type: "qa",
     elements: [
@@ -480,7 +491,7 @@ const prealgebraFindingUnknownsCards: CardContentType[] = [
     ],
   },
   {
-    id: "math-for-fun",
+    id: "math-for-fun6",
     index: 6,
     type: "qa",
     elements: [
@@ -539,7 +550,7 @@ const prealgebraFindingUnknownsCards: CardContentType[] = [
     ],
   },
   {
-    id: "math-for-fun",
+    id: "math-for-fun7",
     index: 7,
     type: "info",
     elements: [

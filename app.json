@@ -14,7 +14,8 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#6254E3"
+        "backgroundColor": "#6254E3",
+        "backgroundImage": "./assets/images/splash_bg.png"
       },
       "package": "com.ableez.Morse"
     },
@@ -34,9 +35,9 @@
         "expo-splash-screen",
         {
           "image": "./assets/images/splash-icon.png",
-          "imageWidth": 100,
+          "imageWidth": 500,
           "resizeMode": "cover",
-          "backgroundColor": "#ffffff"
+          "backgroundColor": "#6254E3"
         }
       ],
       [

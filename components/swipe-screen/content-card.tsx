@@ -1,17 +1,17 @@
-import React, { useCallback } from "react";
+import React, { memo, useCallback } from "react";
 import { Dimensions, StyleSheet, View, Animated } from "react-native";
 import CarouselContent from "./carousel";
 import ContentImage from "./content-image";
-import { CardContentType } from "#/_mock_/swipe-data";
 import { ContentText } from "./card-components/card-text";
 import { baseStyles } from "./base-styles";
 import { Expression } from "./card-components/card-expression";
 import { Options } from "./card-components/card-options";
+import { CardType } from "#/store/card-slide";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("screen");
 
-export const CardContent = React.memo(
-  ({ content }: { content: CardContentType }) => {
+export const CardContent = memo(
+  ({ content }: { content: CardType }) => {
     const renderItems = useCallback(
       () =>
         content.elements.map((element, index) => {
@@ -69,7 +69,10 @@ export const CardContent = React.memo(
         </Animated.View>
       </View>
     );
-  }
+  },
+  (prev, next) =>
+    prev.content.id === next.content.id &&
+    prev.content.viewed === next.content.viewed
 );
 
 const styles = StyleSheet.create({

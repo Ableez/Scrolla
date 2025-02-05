@@ -10,6 +10,7 @@ import {
 import Text from "../text";
 import RectangleProgress from "../swipe-screen/rect-progress";
 import { router } from "expo-router";
+import BouncyButton from "../bouncy-button";
 
 export function LessonCard() {
   const colorScheme = useColorScheme();
@@ -21,7 +22,7 @@ export function LessonCard() {
         paddingHorizontal: 24,
       }}
     >
-      <Pressable onPress={() => router.push("/swipe/new")}>
+      <BouncyButton onPress={() => router.push("/swipe/new")}>
         <View
           style={[
             styles.card,
@@ -67,7 +68,7 @@ export function LessonCard() {
             <RectangleProgress progress={0.72} width={270} height={8} />
           </View>
         </View>
-      </Pressable>
+      </BouncyButton>
     </View>
   );
 }

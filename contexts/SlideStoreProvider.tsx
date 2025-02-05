@@ -24,7 +24,7 @@ export const CardSlideProvider = ({ children }: CardSlideProviderProps) => {
     slideStore.current = createCardSlideStore(initCardSlideStore());
     console.log("");
     console.log("");
-    console.log("................REINITIALIZING CARD SLIDE STORE");
+    console.log("[Provider] Initializing new store instance");
     console.log("");
     console.log("");
   }
@@ -37,14 +37,17 @@ export const CardSlideProvider = ({ children }: CardSlideProviderProps) => {
 };
 
 export const useCardSlideState = <T,>(
-  selector: (store: CardSlideStore) => T
+  selector: (store: CardSlideStore) => T,
+  caller?: string
 ): T => {
   const cardSlideStore = useContext(CardSlideContext);
   const shallowSelector = useShallow(selector);
 
   if (!cardSlideStore) {
+    console.error("[Hook] Used outside of Provider!");
     throw new Error(`useCardSlideState must be used within CardSlideProvider`);
   }
 
+  // console.log(":::STORE_USED:::", caller);
   return useStore(cardSlideStore, shallowSelector);
 };

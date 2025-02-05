@@ -1,22 +1,29 @@
-import { CardContentType } from "#/_mock_/swipe-data";
+import { CardContentType, OptionsContent } from "#/_mock_/swipe-data";
 import { createStore } from "zustand";
+
+export type CardType = {
+  viewed?: boolean;
+} & CardContentType;
+
+export type QuestionCard = {
+  id: string;
+  score: 0 | 1;
+  answered: boolean;
+  selectedOption: number | null;
+  answerChecked: boolean;
+};
 
 export type CardSlideState = {
   currentCardIndex: number;
-  cards: CardContentType[];
+  cards: CardType[];
   isComplete: boolean;
   highestViewedIndex: number;
   progress: number;
   isLoading: boolean;
-  questionCards: {
-    id: string;
-    score: 0 | 1;
-    answered: boolean;
-    selectedOption: number | null;
-    answerChecked: boolean;
-  }[];
+  questionCards: QuestionCard[];
   error: string | null;
   disableSwipe: boolean;
+  maxAllowedIndex: number;
 };
 
 export type CardSlideActions = {
@@ -32,16 +39,15 @@ export type CardSlideActions = {
   setDisableSwipe: (disableSwipe: boolean) => void;
   setCurrentCardIndex: (index: number) => void;
   updateState: (state: Partial<CardSlideState>) => void;
-  addAnsweredQuestion: (question: {
-    id: string;
-    score: 0 | 1;
-    answered: boolean;
-    selectedOption: number | null;
-    answerChecked: boolean;
-  }) => void;
+  handleQuestionAnswer: (questionId: string, optionIndex: number) => void;
   removeAnsweredQuestion: (id: string) => void;
   selectOption: (questionId: string, optionIndex: number) => void;
   isAnswered: (questionId: string) => boolean;
+  questionCards: QuestionCard[];
+  updateMaxAllowedIndex: () => void;
+  updateCard: (id: string, fields: Partial<CardType>) => void;
+  checkAnswer: (questionId: string) => void;
+  canMoveToNextCard: () => boolean;
 };
 
 const defaultCardSlideState: CardSlideState = {
@@ -54,6 +60,7 @@ const defaultCardSlideState: CardSlideState = {
   isLoading: false,
   progress: 0,
   questionCards: [],
+  maxAllowedIndex: 0,
 };
 
 export type CardSlideStore = CardSlideState & CardSlideActions;
@@ -63,6 +70,58 @@ export const createCardSlideStore = (
 ) => {
   return createStore<CardSlideStore>((set, get) => ({
     ...initialState,
+    canMoveToNextCard: () => {
+      const { currentCardIndex, cards, questionCards } = get();
+      const currentCard = cards[currentCardIndex];
+
+      // If not a question card, always allow movement
+      if (!currentCard || currentCard.type !== "qa") return true;
+
+      // Find the question element in the current card
+      const questionElement = currentCard.elements.find(
+        (e) => e.type === "options"
+      );
+      if (!questionElement) return true;
+
+      // Check if the question has been answered and checked
+      const questionState = questionCards.find(
+        (q) => q.id === questionElement.id
+      );
+      return questionState?.answerChecked ?? false;
+    },
+    updateCard: (id, fields) => {
+      const { cards } = get();
+      const card = cards.find((c) => c.id === id);
+      if (!card) return;
+
+      const updated = { ...card, ...fields };
+
+      set({ cards: cards.map((c) => (c.id === id ? updated : c)) });
+    },
+    updateMaxAllowedIndex: () => {
+      // console.log("[Store] Calculating maxAllowedIndex...");
+      const { cards, questionCards } = get();
+      let newMax = 0;
+
+      for (let i = 0; i < cards.length; i++) {
+        const card = cards[i];
+        if (card && card?.type === "qa") {
+          const questionId = card?.elements.find(
+            (e) => e.type === "options"
+          )?.id;
+          const isAnswered =
+            questionId &&
+            questionCards.some((q) => q.id === questionId && q.answerChecked);
+
+          console.log(`[Store] Card ${i} (QA) - Answered: ${isAnswered}`);
+          if (!isAnswered) break;
+        }
+        newMax = i;
+      }
+
+      console.log(`[Store] New maxAllowedIndex: ${newMax}`);
+      set({ maxAllowedIndex: newMax });
+    },
     goToNextCard: () => {
       const { currentCardIndex, cards } = get();
       const nextIndex = Math.min(currentCardIndex + 1, cards.length - 1);
@@ -83,26 +142,52 @@ export const createCardSlideStore = (
     setDisableSwipe: (disableSwipe) => set({ disableSwipe }),
     setCurrentCardIndex: (index) => set({ currentCardIndex: index }),
     updateState: (state) => set((prev) => ({ ...prev, ...state })),
-    addAnsweredQuestion: (answer) => {
-      if (get().questionCards.find((qa) => qa.id === answer.id)) {
-        set((prev) => ({
-          ...prev,
-          questionCards: prev.questionCards.map((qa) => {
-            if (qa.id === answer.id) {
-              return {
-                ...answer,
-              };
-            }
-            return qa;
-          }),
-        }));
-        return;
-      }
-
-      set((prev) => ({
-        ...prev,
-        questionCards: [...prev.questionCards, answer],
+    handleQuestionAnswer: (questionId: string, optionIndex: number) => {
+      set((state) => ({
+        questionCards: state.questionCards.map((q) =>
+          q.id === questionId
+            ? {
+                ...q,
+                selectedOption: optionIndex,
+                answered: true,
+                answerChecked: false,
+              }
+            : q
+        ),
       }));
+    },
+
+    checkAnswer: (questionId: string) => {
+      const { cards, questionCards } = get();
+      const question = cards
+        .find((card) =>
+          card.elements.some((e) => e.type === "options" && e.id === questionId)
+        )
+        ?.elements.find(
+          (e) => e.type === "options" && e.id === questionId
+        ) as unknown as OptionsContent;
+
+      if (!question) return;
+
+      const questionState = questionCards.find((q) => q.id === questionId);
+      if (!questionState?.answered) return;
+
+      const isCorrect = questionState.selectedOption === question.correctAnswer;
+
+      set((state) => ({
+        questionCards: state.questionCards.map((q) =>
+          q.id === questionId
+            ? {
+                ...q,
+                score: isCorrect ? 1 : 0,
+                answerChecked: true,
+              }
+            : q
+        ),
+      }));
+
+      // Update maxAllowedIndex after checking answer
+      get().updateMaxAllowedIndex();
     },
     removeAnsweredQuestion: (id) =>
       set((prev) => ({

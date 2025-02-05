@@ -1,72 +1,106 @@
-import React, { useCallback } from "react";
-import { View, ViewabilityConfig, ViewToken } from "react-native";
+import React, { memo, useCallback, useRef } from "react";
+import { Dimensions, FlatList, View, ViewToken } from "react-native";
 import { useCardSlideState } from "#/contexts/SlideStoreProvider";
-import type { CardContentType } from "#/_mock_/swipe-data";
-import { FlashList } from "@shopify/flash-list";
 import { CardContent } from "./content-card";
+import BottomNav from "./bottom-nav";
+import { CardType } from "#/store/card-slide";
 
-const CardSlide = React.memo(
-  ({
-    flatListRef,
-  }: {
-    flatListRef: React.RefObject<FlashList<CardContentType>>;
-  }) => {
-    const cards = useCardSlideState((s) => s.cards);
-    const setCurrentCardIndex = useCardSlideState((s) => s.setCurrentCardIndex);
-    const setDisableSwipe = useCardSlideState((s) => s.setDisableSwipe);
+const SCREEN_WIDTH = Dimensions.get("screen").width;
 
-    const viewabilityConfig: ViewabilityConfig = {
-      itemVisiblePercentThreshold: 50,
-      minimumViewTime: 100,
-      waitForInteraction: true,
-    };
+const CardSlide = memo(() => {
+  const flatListRef = useRef<FlatList<CardType>>(null);
 
-    const onViewableItemsChanged = useCallback(
-      ({ viewableItems }: { viewableItems: Array<ViewToken> }) => {
-        if (viewableItems.length > 0) {
-          const newIndex = viewableItems[0]?.index ?? 0;
-          setCurrentCardIndex(newIndex);
-          console.log("CURRENT CARD INDEX", newIndex);
+  const { cards, setCurrentCardIndex, setDisableSwipe } = useCardSlideState(
+    (s) => ({
+      cards: s.cards,
+      setCurrentCardIndex: s.setCurrentCardIndex,
+      setDisableSwipe: s.setDisableSwipe,
+    })
+    // "cards-slide------------------------useCardSlideState"
+  );
 
-          setDisableSwipe(cards[newIndex]?.type === "qa");
+  const viewabilityConfig = useRef({
+    itemVisiblePercentThreshold: 50,
+    minimumViewTime: 100,
+  });
+
+  const onViewableItemsChanged = useCallback(
+    ({ viewableItems }: { viewableItems: ViewToken<CardType>[] }) => {
+      let timeoutId: NodeJS.Timeout;
+      if (viewableItems.length > 0) {
+        const newIndex = viewableItems[0]?.index ?? 0;
+        if (timeoutId!) {
+          clearTimeout(timeoutId);
         }
-      },
-      [cards, setCurrentCardIndex, setDisableSwipe]
-    );
+        timeoutId = setTimeout(() => {
+          setCurrentCardIndex(newIndex);
+          setDisableSwipe(cards[newIndex]?.type === "qa");
+        }, 100);
+      }
+    },
+    [cards, setCurrentCardIndex, setDisableSwipe]
+  );
 
-    const keyExtractor = useCallback((item: CardContentType) => item.id, []);
+  const getItemLayout: (
+    data: ArrayLike<CardType> | null | undefined,
+    index: number
+  ) => { length: number; offset: number; index: number } = useCallback(
+    (_, index) => ({
+      length: SCREEN_WIDTH,
+      offset: SCREEN_WIDTH * index,
+      index,
+    }),
+    []
+  );
 
-    const renderItem = useCallback(
-      ({ item }: { item: CardContentType }) => <CardContent content={item} />,
-      []
-    );
-
-    const initialScrollIndex = 0;
-
-    return (
-      <View style={{ height: "76%" }}>
-        <FlashList
-          data={cards}
+  return (
+    <View
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "space-between",
+        height: "100%",
+      }}
+    >
+      <View
+        style={{
+          height: "75%",
+          width: "100%",
+        }}
+      >
+        <FlatList
           ref={flatListRef}
+          data={cards}
           horizontal
           pagingEnabled
-          removeClippedSubviews={false}
+          initialNumToRender={2}
+          maxToRenderPerBatch={3}
+          windowSize={5}
+          removeClippedSubviews
           showsHorizontalScrollIndicator={false}
-          scrollEventThrottle={16}
-          keyExtractor={keyExtractor}
-          renderItem={renderItem}
+          getItemLayout={getItemLayout}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => <CardContent content={item} />}
           onViewableItemsChanged={onViewableItemsChanged}
-          viewabilityConfig={viewabilityConfig}
-          estimatedItemSize={332}
-          initialScrollIndex={initialScrollIndex}
-          maintainVisibleContentPosition={{
-            minIndexForVisible: 0,
-            autoscrollToTopThreshold: 10,
-          }}
+          viewabilityConfig={viewabilityConfig.current}
+          // CellRendererComponent={({ children }) => (
+          //   <View collapsable={true} style={{ width: SCREEN_WIDTH }}>
+          //     {children}
+          //   </View>
+          // )}
         />
       </View>
-    );
-  }
-);
+
+      <View
+        style={{
+          height: "25%",
+          width: "100%",
+        }}
+      >
+        <BottomNav flatListRef={flatListRef} />
+      </View>
+    </View>
+  );
+});
 
 export default CardSlide;

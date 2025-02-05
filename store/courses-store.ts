@@ -32,7 +32,7 @@ export type CoursesActions = {
   setDisableSwipe: (disableSwipe: boolean) => void;
   setCurrentCardIndex: (index: number) => void;
   updateState: (state: Partial<CoursesState>) => void;
-  addAnsweredQuestion: (question: {
+  handleQuestionAnswer: (question: {
     id: string;
     score: 0 | 1;
     answered: boolean;
@@ -83,7 +83,7 @@ export const createCoursesStore = (
     setDisableSwipe: (disableSwipe) => set({ disableSwipe }),
     setCurrentCardIndex: (index) => set({ currentCardIndex: index }),
     updateState: (state) => set((prev) => ({ ...prev, ...state })),
-    addAnsweredQuestion: (answer) => {
+    handleQuestionAnswer: (answer) => {
       if (get().questionCards.find((qa) => qa.id === answer.id)) {
         set((prev) => ({
           ...prev,

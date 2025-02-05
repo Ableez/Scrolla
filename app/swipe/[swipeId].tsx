@@ -1,23 +1,17 @@
-import React, { useEffect, memo, useRef } from "react";
+import React, { useEffect, memo } from "react";
 import { StyleSheet, View, ActivityIndicator } from "react-native";
 import { useNavigation } from "expo-router";
-import BottomNav from "#/components/swipe-screen/bottom-nav";
 import TopNav from "#/components/swipe-screen/top-nav";
 import CardSlide from "#/components/swipe-screen/cards-slide";
-import { cardContent, CardContentType } from "#/_mock_/swipe-data";
+import { cardContent } from "#/_mock_/swipe-data";
 import Text from "#/components/text";
 import { useCardSlideState } from "#/contexts/SlideStoreProvider";
-import { FlashList } from "@shopify/flash-list";
 
 const SwipeScreen: React.FC = () => {
-  const isLoading = useCardSlideState((s) => s.isLoading);
-  const error = useCardSlideState((s) => s.error);
-  const setCards = useCardSlideState((s) => s.setCards);
-  const setIsLoading = useCardSlideState((s) => s.setIsLoading);
-  const setError = useCardSlideState((s) => s.setError);
+  const { isLoading, error, setCards, setIsLoading, setError } =
+    useCardSlideState((s) => s, "[swipeid]------useCardSlideState");
 
   const navigation = useNavigation();
-  const flatListRef = useRef<FlashList<CardContentType>>(null);
 
   useEffect(() => {
     navigation.setOptions({ headerShown: false });
@@ -27,7 +21,7 @@ const SwipeScreen: React.FC = () => {
     const loadCards = async () => {
       setIsLoading(true);
       try {
-        const data = await fetchCardData();
+        const data = cardContent;
         setCards(data);
       } catch (err) {
         setError("Failed to load cards");
@@ -37,7 +31,7 @@ const SwipeScreen: React.FC = () => {
     };
 
     loadCards();
-  }, [setCards, setIsLoading, setError, fetchCardData]);
+  }, []);
 
   if (isLoading) {
     return (
@@ -58,22 +52,18 @@ const SwipeScreen: React.FC = () => {
   return (
     <View style={styles.container}>
       <TopNav />
-      {/* <CardSlide flatListRef={flatListRef} /> */}
-      <BottomNav flatListRef={flatListRef} />
+      <CardSlide />
     </View>
   );
 };
 
-const fetchCardData = async () => {
-  try {
-    // Simulated API call
-    // await new Promise((resolve) => setTimeout(resolve, 100));
-
-    return cardContent;
-  } catch (error) {
-    throw new Error("Failed to fetch card data");
-  }
-};
+// const fetchCardData = async () => {
+//   try {
+//     return cardContent;
+//   } catch (error) {
+//     throw new Error("Failed to fetch card data");
+//   }
+// };
 
 const styles = StyleSheet.create({
   container: {

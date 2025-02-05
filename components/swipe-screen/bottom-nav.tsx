@@ -1,44 +1,46 @@
-import { StyleSheet, TouchableOpacity, View } from "react-native";
-import React, { useRef, useMemo, useCallback } from "react";
-import ConfettiCannon from "react-native-confetti-cannon";
+// BottomNav.tsx
+import { FlatList, StyleSheet, TouchableOpacity, View } from "react-native";
+import React, { memo, useCallback, useMemo } from "react";
 import Text from "../text";
-import { BookOpenTextIcon, ChevronLeft } from "lucide-react-native";
-import { CardContentType } from "#/_mock_/swipe-data";
-import { FlashList } from "@shopify/flash-list";
+import { ChevronLeft, Stars } from "lucide-react-native";
 import { useCardSlideState } from "#/contexts/SlideStoreProvider";
+import BouncyButton from "../bouncy-button";
+import { CardType } from "#/store/card-slide";
 
 interface BottomNavProps {
-  flatListRef: React.RefObject<FlashList<CardContentType>>;
+  flatListRef: React.RefObject<FlatList<CardType>>;
 }
 
-const BottomNav: React.FC<BottomNavProps> = React.memo(({ flatListRef }) => {
-  // Refs
-  const confettiRef = useRef<ConfettiCannon>(null);
-
-  // State selectors
+const BottomNav = memo(({ flatListRef }: BottomNavProps) => {
   const {
-    cards,
     currentCardIndex,
+    cards,
     questionCards,
+    maxAllowedIndex,
     goToNextCard,
     goToPreviousCard,
-    addAnsweredQuestion,
-  } = useCardSlideState((s) => ({
-    cards: s.cards,
-    currentCardIndex: s.currentCardIndex,
-    questionCards: s.questionCards,
-    goToNextCard: s.goToNextCard,
-    goToPreviousCard: s.goToPreviousCard,
-    addAnsweredQuestion: s.addAnsweredQuestion,
-  }));
+    updateCard,
+    handleQuestionAnswer,
+    canMoveToNextCard,
+    checkAnswer,
+  } = useCardSlideState(
+    (s) => ({
+      currentCardIndex: s.currentCardIndex,
+      cards: s.cards,
+      questionCards: s.questionCards,
+      maxAllowedIndex: s.maxAllowedIndex,
+      goToNextCard: s.goToNextCard,
+      goToPreviousCard: s.goToPreviousCard,
+      handleQuestionAnswer: s.handleQuestionAnswer,
+      updateCard: s.updateCard,
+      checkAnswer: s.checkAnswer,
+      canMoveToNextCard: s.canMoveToNextCard,
+    })
+    // "bottom-nav------------------------useCardSlideState"
+  );
 
-  // Derived state
-  const isLastCard = currentCardIndex === cards.length - 1;
-  const currentCard = cards[currentCardIndex];
-  const canNavigateBack = currentCardIndex > 0;
-
-  // Current question details
   const { currentQuestion, questionState } = useMemo(() => {
+    const currentCard = cards[currentCardIndex];
     if (!currentCard || currentCard.type !== "qa") return {};
 
     const questionElement = currentCard.elements.find(
@@ -48,182 +50,148 @@ const BottomNav: React.FC<BottomNavProps> = React.memo(({ flatListRef }) => {
       questionElement && questionCards.find((q) => q.id === questionElement.id);
 
     return { currentQuestion: questionElement, questionState: state };
-  }, [currentCard, questionCards]);
+  }, [currentCardIndex, cards, questionCards]);
 
-  // // Progress calculations
-  // const { correctCount, progressValue } = useMemo(() => {
-  //   const totalQuestions = cards.filter((card) => card.type === "qa").length;
-  //   const correct = questionCards.filter((q) => q.score === 1).length;
-  //   return {
-  //     correctCount: correct,
-  //     progressValue: totalQuestions > 0 ? correct / totalQuestions : 0,
-  //   };
-  // }, [cards, questionCards]);
+  const buttonConfig = useMemo(() => {
+    const isLastCard = currentCardIndex === cards.length - 1;
 
-  // Navigation handlers
-  const handleNext = useCallback(() => {
-    if (!flatListRef.current) return;
-
-    // Handle question check first
-    if (questionState?.selectedOption != null && !questionState.answerChecked) {
-      const isCorrect =
-        currentQuestion?.type === "options" &&
-        questionState.selectedOption === currentQuestion.correctAnswer;
-
-      addAnsweredQuestion({
-        ...questionState,
-        answerChecked: true,
-        score: isCorrect ? 1 : 0,
-      });
-      return;
-    }
-
-    // Regular next navigation
-    const nextIndex = Math.min(currentCardIndex + 1, cards.length - 1);
-    flatListRef.current.scrollToIndex({ index: nextIndex, animated: true });
-    goToNextCard();
-  }, [currentCardIndex, cards.length, questionState, currentQuestion]);
-
-  const handlePrev = useCallback(() => {
-    if (!flatListRef.current) return;
-
-    const prevIndex = Math.max(currentCardIndex - 1, 0);
-    flatListRef.current.scrollToIndex({ index: prevIndex, animated: true });
-    goToPreviousCard();
-  }, [currentCardIndex]);
-
-  // Button state configuration
-  const buttonConfig = () => {
-    if (!currentCard || currentCard.type !== "qa") {
-      return {
-        text: isLastCard ? "Complete" : "Continue",
-        disabled: false,
-      };
+    if (!currentQuestion) {
+      return { text: isLastCard ? "Complete" : "Continue", disabled: false };
     }
 
     if (!questionState?.selectedOption) {
-      return {
-        text: "Continue",
-        disabled: true,
-      };
+      return { text: "Continue", disabled: true };
     }
 
     return questionState.answerChecked
       ? { text: isLastCard ? "Complete" : "Continue", disabled: false }
       : { text: "Check", disabled: false };
-  };
+  }, [currentCardIndex, cards.length, currentQuestion, questionState]);
 
-  if (!currentCard) return null;
+  const handleNavigation = useCallback(
+    (direction: "next" | "prev") => {
+      if (direction === "prev") {
+        const newIndex = Math.max(currentCardIndex - 1, 0);
+
+        if (!flatListRef.current) {
+          console.log("[BottomNav] FlatListRef is null");
+          return;
+        }
+
+        if (cards[newIndex]) {
+          flatListRef.current?.scrollToIndex({
+            index: newIndex,
+            animated: true,
+          });
+          updateCard(cards[newIndex]?.id, { viewed: true });
+        }
+
+        goToPreviousCard();
+      }
+    },
+    [currentCardIndex, cards, flatListRef, updateCard, goToPreviousCard]
+  );
+
+  const handleContinue = useCallback(() => {
+    if (currentQuestion && !questionState?.answerChecked) {
+      checkAnswer(currentQuestion.id);
+    } else if (canMoveToNextCard()) {
+      handleNavigation("next");
+    }
+  }, [currentQuestion, questionState, canMoveToNextCard]);
 
   return (
     <View style={styles.container}>
-      <ConfettiCannon
-        ref={confettiRef}
-        count={150}
-        origin={{ x: 0, y: 0 }}
-        autoStart={false}
-        fadeOut
-      />
-
-      <View style={styles.topSection}>
-        {/* <View style={styles.progressContainer}>
-          <CircleProgress
-            progress={progressValue}
-            size={24}
-            strokeWidth={4.8}
+      <View
+        style={{
+          display: "flex",
+          flexDirection: "row",
+          alignItems: "center",
+          justifyContent: "space-between",
+          width: "100%",
+          padding: 4,
+          gap: 8,
+        }}
+      >
+        <View
+          style={{
+            display: "flex",
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 8,
+          }}
+        >
+          <View
+            style={{
+              borderWidth: 4,
+              borderColor: "#ccc",
+              borderRadius: 100,
+              padding: 8,
+              width: 8,
+            }}
           />
-          <Text weight="semiBold">{correctCount}</Text>
-        </View> */}
-
-        <View style={styles.actionsContainer}>
-          <TheoryButton
-            icon={<BookOpenTextIcon size={14} color="#bbb" />}
-            text="View theory"
-          />
-          <TheoryButton
-            icon={<BookOpenTextIcon size={14} color="#bbb" />}
-            text="Ask Neo"
-          />
+          <Text variant="h3" style={{ color: "#555" }}>
+            0
+          </Text>
         </View>
+        <BouncyButton
+          style={{
+            paddingVertical: 6,
+            paddingHorizontal: 14,
+            borderRadius: 10,
+            display: "flex",
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 8,
+          }}
+        >
+          <Stars size={16} color="#555" />
+          <Text style={{ color: "#555", fontSize: 14 }} weight="bold">
+            View theory
+          </Text>
+        </BouncyButton>
       </View>
-
       <View style={styles.navigationContainer}>
-        <NavButton
-          direction="prev"
-          enabled={canNavigateBack}
-          onPress={handlePrev}
-        />
+        <BouncyButton
+          style={[
+            styles.backButton,
+            currentCardIndex <= 0 && { backgroundColor: "#eee" },
+          ]}
+          onPress={() => handleNavigation("prev")}
+          disabled={currentCardIndex <= 0}
+        >
+          <ChevronLeft
+            size={24}
+            color={currentCardIndex > 0 ? "#000" : "#bbb"}
+          />
+        </BouncyButton>
 
-        <TouchableOpacity
+        <BouncyButton
           style={[
             styles.continueButton,
-            buttonConfig().disabled
-              ? styles.buttonDisabled
-              : styles.buttonActive,
+            buttonConfig.disabled && styles.buttonDisabled,
           ]}
-          onPress={handleNext}
-          disabled={buttonConfig().disabled}
-        >
-          <Text
-            style={[
-              styles.continueText,
-              buttonConfig().disabled ? styles.textDisabled : styles.textActive,
-            ]}
-            weight="medium"
-          >
-            {buttonConfig().text}
+          activeOpacity={0.7}
+          onPress={() => handleContinue()}
+          disabled={buttonConfig.disabled}
+        > 
+          <Text style={styles.continueText} weight="medium">
+            {buttonConfig.text}
           </Text>
-        </TouchableOpacity>
+        </BouncyButton>
       </View>
     </View>
   );
 });
-
-const TheoryButton = ({
-  icon,
-  text,
-}: {
-  icon: React.ReactNode;
-  text: string;
-}) => (
-  <TouchableOpacity style={styles.theoryButton}>
-    {icon}
-    <Text weight="semiBold" style={styles.theoryText}>
-      {text}
-    </Text>
-  </TouchableOpacity>
-);
-
-const NavButton = ({
-  direction,
-  enabled,
-  onPress,
-}: {
-  direction: "prev" | "next";
-  enabled: boolean;
-  onPress: () => void;
-}) => (
-  <TouchableOpacity
-    style={[styles.backButton, !enabled && styles.buttonDisabled]}
-    onPress={onPress}
-    disabled={!enabled}
-  >
-    <ChevronLeft
-      size={24}
-      color={enabled ? "#000" : "#bbb"}
-      style={
-        direction === "next" ? { transform: [{ rotate: "180deg" }] } : undefined
-      }
-    />
-  </TouchableOpacity>
-);
 
 // Keep your existing styles
 const styles = StyleSheet.create({
   container: {
     backgroundColor: "#fff",
     paddingHorizontal: 16,
-    height: "14%",
+    height: "100%",
   },
   topSection: {
     flexDirection: "row",
@@ -278,10 +246,11 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderRadius: 16,
     borderColor: "#eee",
+    backgroundColor: "#000",
   },
   buttonDisabled: {
-    backgroundColor: "#eee",
-    color: "#bbb",
+    backgroundColor: "#999",
+    borderColor: "#999",
   },
   buttonActive: {
     backgroundColor: "#000",
@@ -294,6 +263,7 @@ const styles = StyleSheet.create({
     color: "#fff",
   },
   continueText: {
+    color: "#fff",
     textAlign: "center",
   },
 });
